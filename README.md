@@ -1,10 +1,11 @@
-# robo_pong
+# RoboPong
 Final Project for Robotics Class
 
-
-Welcome to this repository.
-
-Comments here: 
+## ToDo's: ITRI Proof of Concept 1/2
+* read manuals
+* get used to software
+* operate robot
+* discuss procedure: ITRI, HW3 deadline extension, HW4
 
 
 
