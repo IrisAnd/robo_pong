@@ -5,7 +5,10 @@ Final Project for Robotics Class
 * read manuals
 * get used to software
 * operate robot
-* discuss procedure: ITRI, HW3 deadline extension, HW4
+* discuss procedure:
+** ITRI
+** HW3 deadline extension
+** HW4
 
 
 
