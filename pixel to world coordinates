@@ -1,0 +1,13 @@
+1. If you have x,y in image coordinates, a camera matrix, and z in world coordinates then you need to put your image coordinates into 
+a homogenous vector, multiply by the inverse of the camera matrix, and then by your z_world coordinate. Something that might not 
+be intuitive at first is that your units in world coordinates do not matter. After multiplying by the inverse of the camera matrix 
+you have defined the ratio x/z which is unitless. You give the result units by multiplying by z_world. You can measure it in mm, 
+inches, miles, whatever and your resulting vector will have the same units.
+world_cord now contains x_world,y_world,z_world.
+
+cv::Matx31f world_cord(x_im,y_im,1);         //here measured in pixels
+world_cord = camera_matrix.inv()*world_cord; //representing a ratio x/z,y/z
+world_cord *= z_world;                       //now x,y,z are measured in units of z_world
+
+2. Origin of image to origin of robot
+https://w3.cs.jmu.edu/spragunr/CS354/handouts/frames.pdf 
