@@ -10,4 +10,8 @@ world_cord = camera_matrix.inv()*world_cord; //representing a ratio x/z,y/z
 world_cord *= z_world;                       //now x,y,z are measured in units of z_world
 
 2. Origin of image to origin of robot
-https://w3.cs.jmu.edu/spragunr/CS354/handouts/frames.pdf 
+https://w3.cs.jmu.edu/spragunr/CS354/handouts/frames.pdf
+
+hand eye coordination
+maybe with marker on robot arm, find position in image, pixel to mm, robot arm position known, calculate image coordiante system to robot coorindate system
+
