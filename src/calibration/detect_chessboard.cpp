@@ -24,6 +24,8 @@ double square_length;
 
 bool found = findChessboardCorners(frame, boardsize, ptvec, CALIB_CB_ADAPTIVE_THRESH);
 drawChessboardCorners(view, boardsize, Mat(ptvec), found);
+circle(view, ptvec[0],2,Scalar(255,0,0);
+circle(view, ptvec.back(),2,Scalar(0,0,255);
 imshow("corners",view);
 
 double corner_dist;
