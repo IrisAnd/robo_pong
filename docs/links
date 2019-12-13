@@ -1,2 +1,5 @@
+Install Realsense Library: 
+https://github.com/IntelRealSense/librealsense/blob/development/doc/distribution_linux.md
+
 Realsense API: 
 https://github.com/IntelRealSense/librealsense/wiki/API-How-To#start-streaming-left-and-right-infrared-imagers
