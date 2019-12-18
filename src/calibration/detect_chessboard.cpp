@@ -15,7 +15,7 @@ bool check = cap.read(frame);
 imshow("cam", frame);
 
 Mat view = frame.clone();
-Size boardsize = Size(4,7);
+Size boardsize = Size(8,6);
 vector<Point2f> ptvec;
 
 double square_length;
