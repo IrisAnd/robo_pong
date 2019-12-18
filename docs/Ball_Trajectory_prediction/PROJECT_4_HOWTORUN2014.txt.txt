@@ -1,0 +1,14 @@
+red ball track
+detection tracking estimation prediction
+
+main program in start.m
+
+to preview detection in one camera
+run preview_one_cam.m
+
+to preview detection in two cameras
+run preview_2_cams.m
+
+to see example
+run example1.m in exmple for recorded program 
+run example2.m in exmple based only pictures and camera parameters
