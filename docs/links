@@ -1,0 +1,22 @@
+Sample Code for Realsense: 
+https://dev.intelrealsense.com/docs/code-samples
+
+Install Realsense Library: 
+https://github.com/IntelRealSense/librealsense/blob/development/doc/distribution_linux.md
+
+Realsense API: 
+https://github.com/IntelRealSense/librealsense/wiki/API-How-To#start-streaming-left-and-right-infrared-imagers
+
+Ball Detection:
+https://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/
+
+Cannonball Kalman Modell
+https://github.com/jzorjnz/cannonball_kalman_matlab
+
+TCP Server Client Implementation in C:
+https://www.geeksforgeeks.org/tcp-server-client-implementation-in-c/
+
+LibrealsenseTM Python Bindings
+https://pypi.org/project/pyrealsense2/
+https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.html
+
