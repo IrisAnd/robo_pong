@@ -3,8 +3,8 @@
 import socket
  
  
-TCP_IP = '127.0.0.1'
-TCP_PORT = 5005
+TCP_IP = '127.0.0.1'    # Standard loopback interface address (localhost)
+TCP_PORT = 5005         # Port to listen on (non-privileged ports are > 1023)
 BUFFER_SIZE = 20  # Normally 1024, but we want fast response
  
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
