@@ -10,6 +10,10 @@ https://github.com/IntelRealSense/librealsense/wiki/API-How-To#start-streaming-l
 Ball Detection:
 https://www.pyimagesearch.com/2015/09/14/ball-tracking-with-opencv/
 
+Ball Tracking with Opencv Kalman Filter:
+https://www.myzhar.com/blog/tutorials/tutorial-opencv-ball-tracker-using-kalman-filter/
+
+
 Cannonball Kalman Modell
 https://github.com/jzorjnz/cannonball_kalman_matlab
 
