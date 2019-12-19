@@ -36,6 +36,28 @@ import time
 
 # end
 
+def estimate_trajectory_pixel (first_points, time):
+    #params_x = np.array([Ax, Bx, Cx])
+    #params_y = np.array([Ay, By, Cy])
+    #params_z = np.array([Az, Bz, Cz])
+    
+    g = 9810 # mm/s^2
+
+    T_mat = np.array([[t*t,t,1] for t in time]).transpose()
+    T_mat_inv = np.linalg.pinv(T_mat)
+
+    # In y-direction gravity should be considered, so second term is applied
+    T_mat_y = T_mat
+    T_mat_y[0]=T_mat_y[0]-g*T_mat_y[0]
+    T_mat_y_inv = np.linalg.pinv(T_mat_y)
+    
+
+    params_x = first_points[:,0].dot(T_mat_inv)
+    params_y = first_points[:,1].dot(T_mat_y_inv)
+    #params_z = first_points[:,2].dot(T_mat_inv)
+
+    return params_x,params_y
+
 
 
 def estimate_trajectory (first_points, time):
@@ -43,15 +65,22 @@ def estimate_trajectory (first_points, time):
     #params_y = np.array([Ay, By, Cy])
     #params_z = np.array([Az, Bz, Cz])
     
+    g = 9810 # mm/s^2
+
     T_mat = np.array([[t*t,t,1] for t in time]).transpose()
     T_mat_inv = np.linalg.pinv(T_mat)
-    print(T_mat_inv)
+
+    # In y-direction gravity should be considered, so second term is applied
+    T_mat_y = T_mat
+    T_mat_y[0]=T_mat_y[0]-g*T_mat_y[0]
+    T_mat_y_inv = np.linalg.pinv(T_mat_y)
+    print(T_mat_y)
     
+    
+
     params_x = first_points[:,0].dot(T_mat_inv)
-    params_y = first_points[:,1].dot(T_mat_inv)
+    params_y = first_points[:,1].dot(T_mat_y_inv)
     params_z = first_points[:,2].dot(T_mat_inv)
 
     return (params_x,params_y,params_z)
 
-print(np.array([[1,2,3],[1,2,3],[1,2,3],[1,2,3]]))
-print(estimate_trajectory(np.array([[1,2,3],[1,2,3],[1,2,3],[1,2,3]]),np.array([2,3,4,5])))
