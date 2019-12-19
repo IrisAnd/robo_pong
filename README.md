@@ -14,9 +14,10 @@ Final Project for Robotics Class
 ### 13/18/2019
 * RealSense: runs on Clarissa’s (Linux) and Jakob’s (Windows) laptop
 * ball detection: got pixel and depth information from RealSense
-* ![#1589F0] trajectory: `#1589F0` Israeli matlab code was transleted to python (not tested yet)
-* ![#1589F0] TCP Server Client: `#1589F0` Sent a string message from Jakob's laptop (Python) to Roboter (C++). String message has to be decoded next.
+* ![#1589F0](trajectory:) Israeli matlab code was transleted to python (not tested yet)
+* ![#1589F0](TCP Server Client:) Sent a string message from Jakob's laptop (Python) to Roboter (C++). String message has to be decoded next.
 * ask TA for folding ruler
+*![#f03c15](New bullet)
 
 ### 12/18/2019
 * RealSense: runs on Clarissa’s (Linux) and Jakob’s (Windows) laptop
