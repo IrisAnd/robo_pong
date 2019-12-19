@@ -9,13 +9,13 @@ Final Project for Robotics Class
 * ball trajectory prediction
 ** include air friction
 
-## Protocol (Recent progress: green color, New bullet: red color)
+## Protocol
 
 ### 13/18/2019
 * RealSense: runs on Clarissa’s (Linux) and Jakob’s (Windows) laptop
 * ball detection: got pixel and depth information from RealSense
-* <font color="green">trajectory:</font> Israeli matlab code was transleted to python (not tested yet)
-* <font color="green">TCP Server Client:</font> Sent a string message from Jakob's laptop (Python) to Roboter (C++). String message has to be decoded next.
+* trajectory: Israeli matlab code was transleted to python (not tested yet)
+* TCP Server Client:Sent a string message from Jakob's laptop (Python) to Roboter (C++). String message has to be decoded next.
 * ask TA for folding ruler
 
 ### 12/18/2019
