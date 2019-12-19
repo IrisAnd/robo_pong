@@ -11,7 +11,7 @@ import cv2
 #import imutils
 import time
 import sys
-import ball_trajectory_estimation
+import ball_trajectory_estimation as bte
 
 #import pyrealsense2 as rs
 
@@ -77,59 +77,62 @@ def parabel(pts):
 
 
 def detect_ball(color_image):
-	
-	# define the lower and upper boundaries of the "green"
-	# ball in the HSV color space, then initialize the
-	# list of tracked points
-	#HSV
-	orangeLower = (10, 170, 70)
-	orangeUpper = (20, 255, 255)
 
-	
-	#cv2.imshow('frame', frame)
-	# resize the frame, blur it, and convert it to the HSV
-	# color space
-	color_image = resize(color_image, width=600)
-	blurred = cv2.GaussianBlur(color_image, (11, 11), 0)
-	hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    # define the lower and upper boundaries of the "green"
+    # ball in the HSV color space, then initialize the
+    # list of tracked points
+    #HSV
+    orangeLower = (10, 170, 70)
+    orangeUpper = (20, 255, 255)
 
-	# construct a mask for the color "green", then perform
-	# a series of dilations and erosions to remove any small
-	# blobs left in the mask
-	mask = cv2.inRange(hsv, orangeLower, orangeUpper)
-	mask = cv2.erode(mask, None, iterations=2)
-	mask = cv2.dilate(mask, None, iterations=2)
 
-	# find contours in the mask and initialize the current
-	# (x, y) center of the ball
-	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-							cv2.CHAIN_APPROX_SIMPLE)
-	cnts = grab_contours(cnts)
-	center = None
+    #cv2.imshow('frame', frame)
+    # resize the frame, blur it, and convert it to the HSV
+    # color space
+    color_image = resize(color_image, width=600)
+    blurred = cv2.GaussianBlur(color_image, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-	# only proceed if at least one contour was found
-	if len(cnts) > 0:
-		# find the largest contour in the mask, then use
-		# it to compute the minimum enclosing circle and
-		# centroid
-		c = max(cnts, key=cv2.contourArea)
-		((x, y), radius) = cv2.minEnclosingCircle(c)
-		M = cv2.moments(c)
-		center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+    # construct a mask for the color "green", then perform
+    # a series of dilations and erosions to remove any small
+    # blobs left in the mask
+    mask = cv2.inRange(hsv, orangeLower, orangeUpper)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
 
-		# only proceed if the radius meets a minimum size
-		if radius > 10:
-			# draw the circle and centroid on the color_image,
-			# then update the list of tracked points
-			cv2.circle(color_image, (int(x), int(y)), int(radius),
-						(0, 255, 255), 2)
-			cv2.circle(color_image, center, 5, (0, 0, 255), -1)
-	
-	'''parabel'''
-	#pts in world xyz
-	#parabel(pts,time)
+    # find contours in the mask and initialize the current
+    # (x, y) center of the ball
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+    cnts = grab_contours(cnts)
+    center = None
 
-	return color_image,center
+    # only proceed if at least one contour was found
+    if len(cnts) > 0:
+        # find the largest contour in the mask, then use
+        # it to compute the minimum enclosing circle and
+        # centroid
+        c = max(cnts, key=cv2.contourArea)
+        ((x, y), radius) = cv2.minEnclosingCircle(c)
+        M = cv2.moments(c)
+        center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+
+        # only proceed if the radius meets a minimum size
+        if radius > 10:
+            # draw the circle and centroid on the color_image,
+            # then update the list of tracked points
+            cv2.circle(color_image, (int(x), int(y)), int(radius),
+                        (0, 255, 255), 2)
+            cv2.circle(color_image, center, 5, (0, 0, 255), -1)
+
+    '''parabel'''
+    #pts in world xyz
+    #parabel(pts,time)
+    if center != None:
+        center_numpy = [center[0],center[1]]
+    else:
+        center_numpy = None
+    return color_image,center_numpy
 
 def main():
 
@@ -141,7 +144,7 @@ def main():
     # if a video path was not supplied, grab the reference
     # to the webcam
     if args.webcam == True:
-        vs = cv2.VideoCapture(0)
+        vs = cv2.VideoCapture(1)
         print("Webcam mode active")
 
     # otherwise, grab a reference to the video file
@@ -152,8 +155,8 @@ def main():
 
     #time.sleep(2.0)
     buffer_len = 64
-    pts = deque(maxlen = buffer_len)
-    time_vec = deque(maxlen = buffer_len)
+    pts = []
+    time_vec = []
     tic = time.time()
 	# keep looping
     while True:
@@ -187,13 +190,16 @@ def main():
         ball_image,center = detect_ball(color_image)
 
         # show the color_image to our screen# update the points queue
-        pts.appendleft(center)
-        toc = time.time()
-        time_vec.append(toc-tic)
+        if center != None:
+            pts.append(center)
+            toc = time.time()
+            time_vec.append(toc-tic)
 
-        print(pts)
-        params_x,params_y = estimate_trajectory_pixel(pts, time_vec)
-
+        #print(center)
+        #print(pts)
+        if(len(pts) > 5):
+            params_x,params_y = bte.estimate_trajectory_pixel(np.asarray(pts), np.asarray(time_vec))
+            print(params_y)
         # loop over the set of tracked points
         for i in range(1, len(pts)):
             # if either of the tracked points are None, ignore
@@ -204,7 +210,8 @@ def main():
             # otherwise, compute the thickness of the line and
             # draw the connecting lines
             thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-            cv2.line(ball_image, pts[i - 1], pts[i], (0, 0, 255), thickness)
+
+            cv2.line(ball_image, tuple(pts[i - 1]), tuple(pts[i]), (0, 0, 255), thickness)
 
 
         cv2.imshow("color_image", ball_image)
