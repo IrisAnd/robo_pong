@@ -48,12 +48,12 @@ def estimate_trajectory_pixel (first_points, time):
 
     # In y-direction gravity should be considered, so second term is applied
     T_mat_y = T_mat
-    T_mat_y[0]=T_mat_y[0]-g*T_mat_y[0]
-    T_mat_y_inv = np.linalg.pinv(T_mat_y)
+    #T_mat_y[0]=T_mat_y[0]-g*T_mat_y[0]
+    #T_mat_y_inv = np.linalg.pinv(T_mat_y)
     
 
     params_x = first_points[:,0].dot(T_mat_inv)
-    params_y = first_points[:,1].dot(T_mat_y_inv)
+    params_y = first_points[:,1].dot(T_mat_inv)
     #params_z = first_points[:,2].dot(T_mat_inv)
 
     return params_x,params_y

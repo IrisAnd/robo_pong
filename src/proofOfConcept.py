@@ -134,13 +134,20 @@ def detect_ball(color_image):
         center_numpy = None
     return color_image,center_numpy
 
-def get_future_points(params_x,params_y,tic,time_now,time_diff):
-    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.2)
-    print(times)
+def get_future_points_2D(params_x,params_y,tic,time_now,time_diff):
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
+    #print(times)
     x = params_x[0]*times*times+params_x[1]*times+params_x[2]
     y = params_y[0]*times*times+params_y[1]*times+params_y[2]
-
     return np.vstack((x,y))
+
+def get_future_points_3D(params_x,params_y,params_z,tic,time_now,time_diff):
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
+    #print(times)
+    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
+    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
+    z = params_z[0]*times*times+params_z[1]*times+params_z[2]
+    return np.vstack((x,y,z))
 
 def main():
 
@@ -162,10 +169,11 @@ def main():
     # allow the camera or video file to warm up
 
     #time.sleep(2.0)
-    buffer_len = 64
+    buffer_len = 20
     pts = deque(maxlen=buffer_len)
-    time_vec = []
+    time_vec = deque(maxlen=buffer_len)
     tic = time.time()
+    none_count = 0
 	# keep looping
     while True:
         # grab the current frame
@@ -193,24 +201,34 @@ def main():
             break
         ball_image,center = detect_ball(color_image)
         ball_detected = False
+        
         # show the color_image to our screen# update the points queue
         if center != None:
             pts.append(center)
+            #print(len(pts))
             toc = time.time()
             time_vec.append(toc-tic)
             ball_detected = True
+        else:
+            none_count = none_count+1
+
+        if none_count >10:
+            pts.clear()
+            time_vec.clear()
+            none_count = 0
+
 
 
         #print(center)
         #print(pts)
         if(len(pts) > 5):
             params_x,params_y = bte.estimate_trajectory_pixel(np.asarray(pts), np.asarray(time_vec))
-            print(params_x)
-            print(params_y)
+            #print(params_x)
+            #print(params_y)
             future_points = get_future_points(params_x,params_y,tic,time.time(),5)
-            print(future_points)
+            #print(future_points)
             for point in future_points.transpose():
-                print(point)
+                #print(point)
                 cv2.drawMarker(ball_image, tuple(point.astype(int)), (255, 0, 0) ,cv2.MARKER_CROSS,10)
 
         # loop over the set of tracked points
