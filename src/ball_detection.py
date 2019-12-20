@@ -36,7 +36,6 @@ def check_image_boundaries(image,point):
         return True
 
 
-
 def detect_ball(color_image):
 
     # define the lower and upper boundaries of the "orange"
@@ -92,3 +91,13 @@ def detect_ball(color_image):
         center_numpy = [center[0],center[1]]
 
     return color_image,center_numpy
+
+#to up frame-rate, after first recognition of ball try to find it 
+# near the first occurence in the next frame
+def fast_ball_detection(color_image,center):
+    diff = 50
+    if center != None:
+        crop_image = color_image[center[1]-diff:center[1]+diff,center[0]-diff:center[0]+diff]
+        return detect_ball(crop_image)
+    else:
+        return detect_ball(color_image)

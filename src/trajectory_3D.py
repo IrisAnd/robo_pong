@@ -20,7 +20,7 @@ def main():
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
-    
+
     #Create a config and configure the pipeline to stream
     #  different resolutions of color and depth streams
     
@@ -69,8 +69,8 @@ def main():
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         
-        # Detect the orange ball and return image with results 
-        ball_image,center = bd.detect_ball(color_image)
+        # Detect the orange ball and return image with results
+        ball_image,center = bd.fast_ball_detection(color_image,pts[-1])
         
         # update the points queue
         if center != None:
