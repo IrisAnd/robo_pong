@@ -12,6 +12,17 @@ Final Project for Robotics Class
 
 ## Protocol 
 
+### 12/20/2019
+* ProofOfConcept in 2D läuft
+* Vorbereitung Kalibierung: Code in python für x,y, depth Werte, JupyterLab Solver
+* Frame Rate optimierung
+* erste Tests Werfen: Problem -> wenn Ball zu schnell, keine Erkennung (FrameRate Optimierung)
+next steps:
+* 3D Trajectorie schätzen
+* string versenden (Idee in Array versenden)
+* Vorbereitung: Fangpunkt --> Robot Arbeitsraum definieren (Kugel), Schnittpunkt mit Trajectorie
+
+
 #### 12/19/2019 – Iris, Gregor, Jakob 
 * trajectory: ball detected, position output by webcam (w/o depth) and trajectory calculated with translated Israeli code (presumably, to be tested) 
 * TCP connection between our laptop (pyhton) and Robot PC (C++): message sent and echoed 
