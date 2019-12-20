@@ -12,12 +12,12 @@ Final Project for Robotics Class
 
 ## Protocol 
 
-### 12/20/2019
+#### 12/20/2019 - Iris, Gregor, Clarissa
 * ProofOfConcept in 2D läuft
 * Vorbereitung Kalibierung: Code in python für x,y, depth Werte, JupyterLab Solver
 * Frame Rate optimierung
 * erste Tests Werfen: Problem -> wenn Ball zu schnell, keine Erkennung (FrameRate Optimierung)
-#### next steps:
+##### next steps:
 * 3D Trajectorie schätzen
 * string versenden (Idee in Array versenden)
 * Vorbereitung: Fangpunkt --> Robot Arbeitsraum definieren (Kugel), Schnittpunkt mit Trajectorie
