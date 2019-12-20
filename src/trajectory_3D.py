@@ -206,7 +206,7 @@ def main():
         #get depth from depth_image and append to center
         depth = depth_image[center[0],center[1]]
         center.append(depth)
-        print("Center: ",str(center))
+        print("Center: "+ str(center))
 
         ball_detected = False
         
