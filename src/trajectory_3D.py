@@ -38,11 +38,6 @@ def grab_contours(cnts):
     # return the actual contours array
     return cnts
 
-def parabel(pts):
-	temp= None
-
-
-
 def detect_ball(color_image):
 
     # define the lower and upper boundaries of the "green"
@@ -100,21 +95,6 @@ def detect_ball(color_image):
     else:
         center_numpy = None
     return color_image,center_numpy
-
-def get_future_points_2D(params_x,params_y,tic,time_now,time_diff):
-    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
-    #print(times)
-    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
-    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
-    return np.vstack((x,y))
-
-def get_future_points_3D(params_x,params_y,params_z,tic,time_now,time_diff):
-    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
-    #print(times)
-    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
-    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
-    z = params_z[0]*times*times+params_z[1]*times+params_z[2]
-    return np.vstack((x,y,z))
 
 def main():
 
@@ -231,7 +211,7 @@ def main():
             print(params_x)
             print(params_y)
             print(params_z)
-            future_points = get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
+            future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
             #print(future_points)
             for point in future_points.transpose():
                 #print(point)

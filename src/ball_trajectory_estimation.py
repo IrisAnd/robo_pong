@@ -3,7 +3,7 @@ from scipy.optimize import fsolve
 import argparse
 import time
 
-# Following is the matlab code
+# Following is the matlab code on which this program is based on
 # 
 # function [New_Vector] = estimate_vector3(V,t,n)
 
@@ -83,4 +83,19 @@ def estimate_trajectory(first_points, time):
     params_z = first_points[:,2].dot(T_mat_inv)
 
     return params_x,params_y,params_z
+
+def get_future_points_2D(params_x,params_y,tic,time_now,time_diff):
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
+    #print(times)
+    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
+    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
+    return np.vstack((x,y))
+
+def get_future_points_3D(params_x,params_y,params_z,tic,time_now,time_diff):
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
+    #print(times)
+    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
+    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
+    z = params_z[0]*times*times+params_z[1]*times+params_z[2]
+    return np.vstack((x,y,z))
 
