@@ -60,7 +60,7 @@ def estimate_trajectory_pixel (first_points, time):
 
 
 
-def estimate_trajectory (first_points, time):
+def estimate_trajectory(first_points, time):
     #params_x = np.array([Ax, Bx, Cx])
     #params_y = np.array([Ay, By, Cy])
     #params_z = np.array([Az, Bz, Cz])
@@ -82,5 +82,5 @@ def estimate_trajectory (first_points, time):
     params_y = first_points[:,1].dot(T_mat_y_inv)
     params_z = first_points[:,2].dot(T_mat_inv)
 
-    return (params_x,params_y,params_z)
+    return params_x,params_y,params_z
 
