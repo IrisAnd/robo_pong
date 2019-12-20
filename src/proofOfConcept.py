@@ -134,6 +134,14 @@ def detect_ball(color_image):
         center_numpy = None
     return color_image,center_numpy
 
+def get_future_points(params_x,params_y,tic,time_now,time_diff):
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.2)
+    print(times)
+    x = params_x[0]*times*times+params_x[1]*times+params_x[2]
+    y = params_y[0]*times*times+params_y[1]*times+params_y[2]
+
+    return np.vstack((x,y))
+
 def main():
 
     # construct the argument parse and parse the arguments
@@ -144,7 +152,7 @@ def main():
     # if a video path was not supplied, grab the reference
     # to the webcam
     if args.webcam == True:
-        vs = cv2.VideoCapture(1)
+        vs = cv2.VideoCapture(0)
         print("Webcam mode active")
 
     # otherwise, grab a reference to the video file
@@ -155,7 +163,7 @@ def main():
 
     #time.sleep(2.0)
     buffer_len = 64
-    pts = []
+    pts = deque(maxlen=buffer_len)
     time_vec = []
     tic = time.time()
 	# keep looping
@@ -175,10 +183,6 @@ def main():
             depth_image = np.asanyarray(depth_frame.get_data())
             color_image = np.asanyarray(color_frame.get_data())
             color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
-            
-
-
-        #time = 
 
         # handle the frame from VideoCapture or VideoStream
         #print(type(frame))
@@ -188,23 +192,32 @@ def main():
             print('Frame is none')
             break
         ball_image,center = detect_ball(color_image)
-
+        ball_detected = False
         # show the color_image to our screen# update the points queue
         if center != None:
             pts.append(center)
             toc = time.time()
             time_vec.append(toc-tic)
+            ball_detected = True
+
 
         #print(center)
         #print(pts)
         if(len(pts) > 5):
             params_x,params_y = bte.estimate_trajectory_pixel(np.asarray(pts), np.asarray(time_vec))
+            print(params_x)
             print(params_y)
+            future_points = get_future_points(params_x,params_y,tic,time.time(),5)
+            print(future_points)
+            for point in future_points.transpose():
+                print(point)
+                cv2.drawMarker(ball_image, tuple(point.astype(int)), (255, 0, 0) ,cv2.MARKER_CROSS,10)
+
         # loop over the set of tracked points
         for i in range(1, len(pts)):
             # if either of the tracked points are None, ignore
             # them
-            if pts[i - 1] is None or pts[i] is None:
+            if ball_detected != True:
                 continue
 
             # otherwise, compute the thickness of the line and

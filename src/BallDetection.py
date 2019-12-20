@@ -171,7 +171,7 @@ while True:
 			cv2.circle(color_image, center, 5, (0, 0, 255), -1)
 
 	# update the points queue
-	pts.appendleft(center)
+	pts.append(center)
 	
 	'''parabel'''
 	#pts in world xyz
