@@ -18,9 +18,9 @@ Final Project for Robotics Class
 * Frame Rate optimierung
 * erste Tests Werfen: Problem -> wenn Ball zu schnell, keine Erkennung (FrameRate Optimierung)
 ##### next steps:
-* 3D Trajectorie schätzen
+* 3D Trajektorie schätzen
 * string versenden (Idee in Array versenden)
-* Vorbereitung: Fangpunkt --> Robot Arbeitsraum definieren (Kugel), Schnittpunkt mit Trajectorie
+* Vorbereitung: Fangpunkt --> Robot Arbeitsraum definieren (Kugel), Schnittpunkt mit Trajektorie
 
 
 #### 12/19/2019 – Iris, Gregor, Jakob 
