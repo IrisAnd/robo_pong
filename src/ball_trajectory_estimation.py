@@ -74,7 +74,7 @@ def estimate_trajectory(first_points, time):
     T_mat_y = T_mat
     T_mat_y[0]=T_mat_y[0]-g*T_mat_y[0]
     T_mat_y_inv = np.linalg.pinv(T_mat_y)
-    print(T_mat_y)
+    #print(T_mat_y)
     
     
 

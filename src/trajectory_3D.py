@@ -13,7 +13,10 @@ import time
 import sys
 import ball_trajectory_estimation as bte
 
-#import pyrealsense2 as rs
+import pyrealsense2 as rs
+
+import csv
+import os
 
 def grab_contours(cnts):
     # if the length the contours tuple returned by cv2.findContours
@@ -64,8 +67,8 @@ def detect_ball(color_image):
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
     mask = cv2.inRange(hsv, orangeLower, orangeUpper)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
+    mask = cv2.erode(mask, None, iterations=1)
+    mask = cv2.dilate(mask, None, iterations=1)
 
     # find contours in the mask and initialize the current
     # (x, y) center of the ball
@@ -83,20 +86,19 @@ def detect_ball(color_image):
         ((x, y), radius) = cv2.minEnclosingCircle(c)
         M = cv2.moments(c)
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-
+    
         # only proceed if the radius meets a minimum size
-        if radius > 10:
+        if radius > 5:
             # draw the circle and centroid on the color_image,
             # then update the list of tracked points
             cv2.circle(color_image, (int(x), int(y)), int(radius),
                         (0, 255, 255), 2)
             cv2.circle(color_image, center, 5, (0, 0, 255), -1)
 
-    '''parabel'''
-    #pts in world xyz
-    #parabel(pts,time)
     if center != None:
         center_numpy = [center[0],center[1]]
+        if center[0] >= color_image.shape[0] or center[1] >= color_image.shape[1]:
+            center_numpy = None
     else:
         center_numpy = None
     return color_image,center_numpy
@@ -132,28 +134,28 @@ def main():
     # otherwise, grab a reference to the video file
     else:
 
-    pipe = rs.pipeline()
-    #Create a config and configure the pipeline to stream
-    #  different resolutions of color and depth streams
-    
-    config = rs.config()
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        pipe = rs.pipeline()
+        #Create a config and configure the pipeline to stream
+        #  different resolutions of color and depth streams
+        
+        config = rs.config()
+        config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 60)
+        config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 60)
 
-    # Start streaming
-    profile = pipeline.start(config)
+        # Start streaming
+        profile = pipe.start(config)
 
-    # Getting the depth sensor's depth scale (see rs-align example for explanation)
-    depth_sensor = profile.get_device().first_depth_sensor()
-    depth_scale = depth_sensor.get_depth_scale()
-    print("Depth Scale is: " , depth_scale)
+        # Getting the depth sensor's depth scale (see rs-align example for explanation)
+        depth_sensor = profile.get_device().first_depth_sensor()
+        depth_scale = depth_sensor.get_depth_scale()
+        print("Depth Scale is: " , depth_scale)
 
-    # Create an align object
-    # rs.align allows us to perform alignment of depth frames to others frames
-    # The "align_to" is the stream type to which we plan to align depth frames.
-    align_to = rs.stream.color
-    align = rs.align(align_to)
-    
+        # Create an align object
+        # rs.align allows us to perform alignment of depth frames to others frames
+        # The "align_to" is the stream type to which we plan to align depth frames.
+        align_to = rs.stream.color
+        align = rs.align(align_to)
+        
     # allow the camera or video file to warm up
 
     #time.sleep(2.0)
@@ -162,6 +164,9 @@ def main():
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
     none_count = 0
+    os.remove('data.csv')
+    file = open('data.csv', 'a', newline='')
+    writer = csv.writer(file)
 	# keep looping
     while True:
         # grab the current frame
@@ -173,6 +178,7 @@ def main():
 
         else:
 
+            frames = pipe.wait_for_frames()
              # Align the depth frame to color frame
             aligned_frames = align.process(frames)
 
@@ -202,16 +208,22 @@ def main():
         # then we have reached the end of the video
         
         ball_image,center = detect_ball(color_image)
-
+        #print("Center: "+ str(center))
         #get depth from depth_image and append to center
-        depth = depth_image[center[0],center[1]]
-        center.append(depth)
-        print("Center: "+ str(center))
+        
+        
+        
 
         ball_detected = False
         
         # show the color_image to our screen# update the points queue
         if center != None:
+
+            depth = depth_image[center[0],center[1]]
+            #print(depth)
+           
+            writer.writerow([time.time(),center[0], center[1], depth])
+            center.append(depth)
             pts.append(center)
             toc = time.time()
             time_vec.append(toc-tic)
@@ -226,11 +238,11 @@ def main():
             none_count = 0
 
 
-        if(len(pts) > 5):
+        if(len(pts) > 3):
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
-            print(params_x)
-            print(params_y)
-            print(params_z)
+            #print(params_x)
+            #print(params_y)
+            #print(params_z)
             future_points = get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
             #print(future_points)
             for point in future_points.transpose():
@@ -248,7 +260,7 @@ def main():
             # draw the connecting lines
             thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
 
-            cv2.line(ball_image, tuple(pts[i - 1]), tuple(pts[i]), (0, 0, 255), thickness)
+            cv2.line(ball_image, tuple(pts[i - 1][:2]), tuple(pts[i][:2]), (0, 0, 255), thickness)
 
 
         cv2.imshow("color_image", ball_image)
