@@ -22,7 +22,8 @@ def main():
     writer = csv.writer(file,delimiter=',', quotechar=' ')
     writer.writerow(["time", "point"])
     
-
+    # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
+    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
     # Startup realsense pipeline
     pipeline = rs.pipeline()
 
@@ -128,6 +129,7 @@ def main():
 
         # Display results
         cv2.imshow("Result image", ball_image)
+        #out.write(ball_image)
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
