@@ -93,7 +93,7 @@ def get_future_points_2D(params_x,params_y,tic,time_now,time_diff):
     return np.vstack((x,y))
 
 def get_future_points_3D(params_x,params_y,params_z,tic,time_now,time_diff):
-    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.1)
+    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.01)
     #print(times)
     x = params_x[0]*times+params_x[1]
     y = params_y[0]*times*times+params_y[1]*times+params_y[2]
