@@ -102,7 +102,7 @@ profile = pipeline.start(config)
 # Getting the depth sensor's depth scale (see rs-align example for explanation)
 depth_sensor = profile.get_device().first_depth_sensor()
 depth_scale = depth_sensor.get_depth_scale()
-print("Depth Scale is: " , depth_scale)
+#print("Depth Scale is: " , depth_scale)
 
 # We will be removing the background of objects more than
 #  clipping_distance_in_meters meters away
@@ -117,7 +117,6 @@ align = rs.align(align_to)
 
 # Streaming loop
 try:
-    j = 0 #for getting only one time coordinates
     while True:
         # Get frameset of color and depth
         frames = pipeline.wait_for_frames()
@@ -202,7 +201,6 @@ try:
                 cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
                 cv2.imshow('Align Example', images)
                 
-                j = j+1
 
 
             # only proceed if the radius meets a minimum size
@@ -215,6 +213,7 @@ try:
 
         # update the points queue
         pts.appendleft(center)
+        print("Coordinates: "+ str(center)+" "+ depth)
         
 
         
@@ -234,7 +233,7 @@ try:
 
         # show the color_image to our screen
         cv2.imshow("color_image", color_image)
-        key = cv2.waitKey(1) & 0xFF
+        key = cv2.waitKey()
 
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):
