@@ -104,18 +104,18 @@ def fast_ball_detection(color_image,center):
     diff = 80
     bounding_box = None
     
-    # if center is not None:
+    if center is not None:
         
-    #     # Crop image but make sure cropping is done within image boundaries
-    #     x_min = center[0] - diff if center[0] - diff > 0 else 0 
-    #     x_max = center[0] + diff if center[0] + diff < color_image.shape[0] else color_image.shape[0]
-    #     y_min = center[1] - diff if center[1] - diff > 0 else 0
-    #     y_max = center[1] + diff if center[1] + diff < color_image.shape[1] else color_image.shape[1]
-    #     crop_image = color_image[y_min:y_max,x_min:x_max]
+        # Crop image but make sure cropping is done within image boundaries
+        x_min = center[0] - diff if center[0] - diff > 0 else 0 
+        x_max = center[0] + diff if center[0] + diff < color_image.shape[0] else color_image.shape[0]
+        y_min = center[1] - diff if center[1] - diff > 0 else 0
+        y_max = center[1] + diff if center[1] + diff < color_image.shape[1] else color_image.shape[1]
+        crop_image = color_image[y_min:y_max,x_min:x_max]
         
 
-    #     bounding_box = (x_min, x_max, y_min, y_max)
-    #     #cv2.imshow("Crop image", crop_image)
+        bounding_box = (x_min, x_max, y_min, y_max)
+        #cv2.imshow("Crop image", crop_image)
         
 
         
