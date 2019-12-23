@@ -14,11 +14,16 @@ import pyrealsense2 as rs
 def main():
 
     # create new csv file to save results
-    os.remove('data.csv')
-    file = open('data.csv', 'a', newline='')
-    writer.writerow(["time", "center", "depth"])
-    writer = csv.writer(file)
-
+    try:
+        os.remove('data.csv')
+    except:
+        print("No data file found, creating new one")
+    file = open('data.csv', mode = 'a')
+    writer = csv.writer(file,delimiter=',', quotechar=' ')
+    writer.writerow(["time", "point"])
+    
+    # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
+    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
     # Startup realsense pipeline
     pipeline = rs.pipeline()
 
@@ -44,7 +49,7 @@ def main():
     align = rs.align(align_to)
         
     # initialize variables for trajectory calculation
-    buffer_len = 20 #number of points that will be taken into account for trajectory calculation
+    buffer_len = 70 #number of points that will be taken into account for trajectory calculation
     pts = deque(maxlen=buffer_len)
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
@@ -71,21 +76,27 @@ def main():
         color_image = np.asanyarray(color_frame.get_data())
         
         # Detect the orange ball and return image with results
-        ball_image,center = bd.fast_ball_detection(color_image,pts[-1])
+        ball_image,center = bd.fast_ball_detection(color_image,(pts or [None])[-1])
+
+        
         
         # update the points queue
-        if center != None:
+        if center is not None :
             
             #get depth from depth_image and append to center, append the current center to the points list
             depth = depth_image[center[0],center[1]]
             center.append(depth)
-            pts.append(center)
+
+            # TODO Transfrom center from camera coordinate system to robot coordinate system and append it to pts
+
+            pts.append(center) # TODO this center should be in robot coordinates
 
             #append current time to time vector
             toc = time.time()
             time_vec.append(toc-tic)
+
             #write the time and detected point to csv output file
-            writer.writerow([toc, center, depth])
+            writer.writerow([toc, center]) # TODO this center should be in robot coordinates
 
         else:
             none_count = none_count+1
@@ -104,6 +115,8 @@ def main():
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
             for point in future_points.transpose():
+                
+                # TODO Retransform back to camera coordinate system to be able to draw it in image
                 cv2.drawMarker(ball_image, tuple(point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
 
         # loop over the set of tracked points to draw the balls past movement
@@ -116,13 +129,12 @@ def main():
 
         # Display results
         cv2.imshow("Result image", ball_image)
+        #out.write(ball_image)
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):
             break
-
-    vs.release()
 
     # close all windows
     cv2.destroyAllWindows()
