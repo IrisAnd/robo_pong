@@ -178,29 +178,29 @@ try:
             ((x, y), radius) = cv2.minEnclosingCircle(c)
             M = cv2.moments(c)
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-            if j == 0:
-                #print("center: " + center)
-                
-                calib_point = center
-                print("x: " + str(calib_point[0]))
-                print("y: " + str(calib_point[1]))
-                depth = depth_image[calib_point[0],calib_point[1]]
-                print("depth: " + str(depth))
-               # cv2.imshow('depth Image', depth_image)
-               # cv2.imshow('color image', color_image)
-                
-                # Render images
-                # Remove background - Set pixels further than clipping_distance to grey
-                grey_color = 153
-                depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
-                #bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
-                
-                
-                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-                images = np.hstack((color_image, depth_colormap))
-                cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
-                cv2.imshow('Align Example', images)
-                
+            
+            #print("center: " + center)
+            
+            calib_point = center
+            print("x: " + str(calib_point[0]))
+            print("y: " + str(calib_point[1]))
+            depth = depth_image[calib_point[0],calib_point[1]]
+            print("depth: " + str(depth))
+            # cv2.imshow('depth Image', depth_image)
+            # cv2.imshow('color image', color_image)
+            
+            # Render images
+            # Remove background - Set pixels further than clipping_distance to grey
+            grey_color = 153
+            depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
+            #bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
+            
+            cv2.circle(color_image, center, 5, (0, 0, 255), -1)
+            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            images = np.hstack((color_image, depth_colormap))
+            cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
+            cv2.imshow('Align Example', images)
+            
 
 
             # only proceed if the radius meets a minimum size
@@ -213,7 +213,6 @@ try:
 
         # update the points queue
         pts.appendleft(center)
-        print("Coordinates: "+ str(center)+" "+ depth)
         
 
         

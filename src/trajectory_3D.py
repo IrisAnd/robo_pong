@@ -50,7 +50,7 @@ def main():
     align = rs.align(align_to)
         
     # initialize variables for trajectory calculation
-    buffer_len = 40 #number of points that will be taken into account for trajectory calculation
+    buffer_len = 30 #number of points that will be taken into account for trajectory calculation
     pts = deque(maxlen=buffer_len)
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
