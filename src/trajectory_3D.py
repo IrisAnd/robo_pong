@@ -55,18 +55,28 @@ def main():
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
     none_count = 0
-	
+
+    # Declare depth filters
+    dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
+    spat_filter = rs.spatial_filter()  # Spatial    - edge-preserving spatial smoothing
+    temp_filter = rs.temporal_filter()  # Temporal   - reduces temporal noise
+
     # loop for video
     while True:
         
         # Wait for frames from realsense
         frames = pipeline.wait_for_frames()
-            # Align the depth frame to color frame
+        # Align the depth frame to color frame
         aligned_frames = align.process(frames)
 
         # Get aligned frames
         aligned_depth_frame = aligned_frames.get_depth_frame() # aligned_depth_frame is a 640x480 depth image
         color_frame = aligned_frames.get_color_frame()
+
+        # Filter aligned depth frame
+        aligned_depth_frame = dec_filter.process(aligned_depth_frame)
+        aligned_depth_frame = spat_filter.process(aligned_depth_frame)
+        aligned_depth_frame = temp_filter.process(aligned_depth_frame)
 
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
