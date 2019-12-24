@@ -23,7 +23,8 @@ def main():
     writer.writerow(["time", "point"])
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+
     # Startup realsense pipeline
     pipeline = rs.pipeline()
 
@@ -49,7 +50,7 @@ def main():
     align = rs.align(align_to)
         
     # initialize variables for trajectory calculation
-    buffer_len = 70 #number of points that will be taken into account for trajectory calculation
+    buffer_len = 40 #number of points that will be taken into account for trajectory calculation
     pts = deque(maxlen=buffer_len)
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
@@ -129,7 +130,7 @@ def main():
 
         # Display results
         cv2.imshow("Result image", ball_image)
-        #out.write(ball_image)
+        out.write(ball_image)
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
