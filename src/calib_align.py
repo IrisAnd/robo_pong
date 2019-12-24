@@ -71,6 +71,10 @@ def grab_contours(cnts):
     # return the actual contours array
     return cnts
 
+camera_matrix = np.array([[-0.63794924 , 2.08362029 , 0.02540786],[ 2.16947552 ,-1.10534136 ,-0.23741742],[-0.42861632 ,-0.45252261 , 0.27626879]])
+camera_matrix = np.array([[-0.47068177,  1.65131359,  0.06589142],
+ [ 2.11572391, -1.07885886, -0.22597733],
+ [-0.37933887, -0.57711217,  0.27240474]])
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="path to the (optional) video file")
@@ -102,12 +106,19 @@ profile = pipeline.start(config)
 # Getting the depth sensor's depth scale (see rs-align example for explanation)
 depth_sensor = profile.get_device().first_depth_sensor()
 depth_scale = depth_sensor.get_depth_scale()
-#print("Depth Scale is: " , depth_scale)
+print("Depth Scale is: " , depth_scale)
 
 # We will be removing the background of objects more than
 #  clipping_distance_in_meters meters away
 clipping_distance_in_meters = 1 #1 meter
 clipping_distance = clipping_distance_in_meters / depth_scale
+
+# Declare depth filters
+dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
+spat_filter = rs.spatial_filter()  # Spatial    - edge-preserving spatial smoothing
+temp_filter = rs.temporal_filter()  # Temporal   - reduces temporal noise
+
+
 
 # Create an align object
 # rs.align allows us to perform alignment of depth frames to others frames
@@ -133,12 +144,17 @@ try:
         if not aligned_depth_frame or not color_frame:
             continue
 
+        # Filter aligned depth frame
+        #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
+        aligned_depth_frame = spat_filter.process(aligned_depth_frame)
+        aligned_depth_frame = temp_filter.process(aligned_depth_frame)
+
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
 
-        #print(depth_image.shape)
-        #print(color_image.shape)
+        print(depth_image.shape)
+        print(color_image.shape)
 
         # Remove background - Set pixels further than clipping_distance to grey
         # then we have reached the end of the video
@@ -186,6 +202,8 @@ try:
             print("y: " + str(calib_point[1]))
             depth = depth_image[calib_point[0],calib_point[1]]
             print("depth: " + str(depth))
+            world_coordinate= camera_matrix.dot(np.array([calib_point[0], calib_point[1], depth]).transpose())
+            print(world_coordinate)
             # cv2.imshow('depth Image', depth_image)
             # cv2.imshow('color image', color_image)
             

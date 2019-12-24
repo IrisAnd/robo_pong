@@ -74,7 +74,7 @@ def main():
         color_frame = aligned_frames.get_color_frame()
 
         # Filter aligned depth frame
-        aligned_depth_frame = dec_filter.process(aligned_depth_frame)
+        #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
         aligned_depth_frame = spat_filter.process(aligned_depth_frame)
         aligned_depth_frame = temp_filter.process(aligned_depth_frame)
 
