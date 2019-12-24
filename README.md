@@ -25,6 +25,13 @@ Now, the robot should move to the coordinates specified in TCPCleint.py.
 
 ## Protocol 
 
+### 12/24 - Iris, Gregor
+* Camera Calibration:
+	- Depth is a BIG issue!
+	- Calibration is not very accurate, even if using 9 points. 
+	- Ideas: maybe use more (or better) points, ask TAs and Internet how depth quality can be improved. 
+* Issues: Could not tesk trajectory planning, as TCP connection did not work
+
 #### 12/21/2019 – Gregor, Jakob
 * TCP: 
 	* [SOLVED] issue: now, strings, int arrays, etc can be read on server
