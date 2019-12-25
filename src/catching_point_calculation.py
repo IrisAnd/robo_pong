@@ -23,7 +23,7 @@ def get_intersection_time(params_x,params_y,params_z):
     t = temp
     if t :
          
-        print('t: ' + str(t))
+        #print('t: ' + str(t))
         t = min(t)
 
         return t

@@ -10,6 +10,7 @@ import ball_trajectory_estimation as bte
 import ball_detection as bd
 import catching_point_calculation as cpc
 import pyrealsense2 as rs
+from TCPClient import TCPClient
 
 def main():
 
@@ -21,6 +22,9 @@ def main():
     file = open('data.csv', mode = 'a')
     writer = csv.writer(file,delimiter=',', quotechar=' ')
     writer.writerow(["time", "point"])
+
+    # Open TCP connection to robot
+    client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
     out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
@@ -138,8 +142,13 @@ def main():
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
             catch_point = cpc.get_catching_point(params_x,params_y,params_z)
+            catch_point= [5.06,904.34,567.98]
+
 
             #TODO: Send catching point to robot
+            if catch_point is not None: 
+                print ("Catch Position: ", catch_point)
+                client.send_message(catch_point)
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)

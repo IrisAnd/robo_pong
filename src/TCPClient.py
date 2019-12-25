@@ -1,39 +1,52 @@
 #!/usr/bin/env python
 #  
-import socket
+import socket 
 import struct
 import time
 
- 
-# specify server IP
-TCP_IP = '10.38.236.84'           # ITRI PC: WLAN receiver IP
-# TCP_IP = '10.38.197.195'          # Jakobs wlan ip
-# TCP_IP = '127.0.0.1'              # Standard loopback interface address (localhost)
+class TCPClient:
 
-# Port to listen on (non-privileged ports are > 1023)
-TCP_PORT = 27015                  # ITRI PC
-# TCP_PORT = 5005                   # Jakob Laptop
+    def __init__(self):
+        # specify server IP
+        self.TCP_IP = '10.38.236.84'           # ITRI PC: WLAN receiver IP
+        # TCP_IP = '10.38.197.195'          # Jakobs wlan ip
+        # TCP_IP = '127.0.0.1'              # Standard loopback interface address (localhost)
 
-BUFFER_SIZE = 4
-MESSAGE = [200.0, 400.0, 50.0]
+        # Port to listen on (non-privileged ports are > 1023)
+        self.TCP_PORT = 27015                  # ITRI PC
+        # TCP_PORT = 5005                   # Jakob Laptop
 
-# create list of bytes
-B_MESSAGE = []
-for number in MESSAGE:
-    number = float(number)
-    B_MESSAGE.append(bytearray(struct.pack("f", number)))
+        self.BUFFER_SIZE = 4
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        
+        print('start connect ...')
+        self.s.connect((self.TCP_IP, self.TCP_PORT))
+        print('connection successful.')
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    print('start connect ...')
-    s.connect((TCP_IP, TCP_PORT))
-    print('start send ...')
+    
+    def send_message(self,MESSAGE):
 
-    for byte_array in B_MESSAGE:
-        s.send(byte_array)
-        print('sent {}'.format(byte_array))
+        # create list of bytes
+        B_MESSAGE = []
+        for number in MESSAGE:
+            number = float(number)
+            B_MESSAGE.append(bytearray(struct.pack("f", number)))
 
-    data = "data"
-    while data is not None:
-        data = s.recv(BUFFER_SIZE)
-        print("received data:", repr(data))
-    s.close()
+        for byte_array in B_MESSAGE:
+            self.s.send(byte_array)
+            #print('sent {}'.format(byte_array))
+
+        # data = "data"
+        # while data is not None:
+        #     data = self.s.recv(self.BUFFER_SIZE)
+        #     print("received data:", repr(data))
+        self.s.close()
+
+def main():
+    client = TCPClient()
+    DEFAULT_MESSAGE = [200.0, 400.0, 50.0]
+    client.send_message(DEFAULT_MESSAGE)
+
+
+if __name__ == '__main__':
+    main()
