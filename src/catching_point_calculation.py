@@ -14,25 +14,23 @@ def get_intersection_time(params_x,params_y,params_z):
     t = solve(equation ,t)
 
     #delete complex numbers
-    print(type(t[2]))
-   
-    #need to find solution to delte complex numbers, problem data type is not a real complex number
+    #need to find solution to delete complex numbers, problem data type is not a real complex number
     t = np.array([complex(item) for item in t])
-    print(t)
-    print(type(t[2]))
     temp =[]
     for i in t:
         if (i.imag == 0):
-            print(i)
             temp.append(i)
     t = temp
-    #should be postive, not right now because of dummy variables
-    t = min(t) 
+    if t :
+         
+        print('t: ' + str(t))
+        t = min(t)
 
-    print('t: ' + str(t))
-    return t
+        return t
+    else:
+        return None
 
-def get_catching_point(params_x, params_y, params_z, t):
+def calc_catching_point(params_x, params_y, params_z, t):
     
     T_mat_poly = np.array([t*t,t,1]).transpose()
     
@@ -45,13 +43,25 @@ def get_catching_point(params_x, params_y, params_z, t):
 
 def check_boundaries(point):
     #check that x < 0 and z >0
-    print('point: ' + str(point))
+    #print('point: ' + str(point))
     if point[0]<0 and point[2]>0:
-        print('point: ' + str(point))
+        #print('point: ' + str(point))
         return True
     else:
         return False
 
+
+def get_catching_point(params_x,params_y,params_z):
+
+    t = get_intersection_time(params_x,params_y,params_z)
+    if t is not None:
+
+        catch_point=calc_catching_point(params_x,params_y,params_z,t)
+        if check_boundaries(catch_point):
+            return catch_point
+    else:
+        #print("No valid catching point found")
+        return None
 
 def main():
     params_x = np.array([2.,4.])
@@ -60,7 +70,7 @@ def main():
 
     t = get_intersection_time(params_x,params_y,params_z)
   
-    catch_point=get_catching_point(params_x,params_y,params_z,t)
+    catch_point=calc_catching_point(params_x,params_y,params_z,t)
     
     if check_boundaries(catch_point):
         print('move')

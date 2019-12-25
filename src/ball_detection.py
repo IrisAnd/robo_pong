@@ -103,7 +103,9 @@ def detect_ball(color_image, bb):
 def fast_ball_detection(color_image,center):
     diff = 80
     bounding_box = None
-    
+
+
+    # This code is not used, as it made detection slower not faster :)
     # if center is not None:
         
     #     # Crop image but make sure cropping is done within image boundaries

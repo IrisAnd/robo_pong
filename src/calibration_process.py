@@ -116,8 +116,11 @@ clipping_distance = clipping_distance_in_meters / depth_scale
 # Declare depth filters
 dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
 spat_filter = rs.spatial_filter()  # Spatial    - edge-preserving spatial smoothing
+hole_filling = rs.hole_filling_filter()
 temp_filter = rs.temporal_filter()  # Temporal   - reduces temporal noise
 
+depth_to_disparity = rs.disparity_transform(True)
+disparity_to_depth = rs.disparity_transform(False)
 
 
 # Create an align object
@@ -146,9 +149,11 @@ try:
 
         # Filter aligned depth frame
         #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
+        aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
         aligned_depth_frame = spat_filter.process(aligned_depth_frame)
         aligned_depth_frame = temp_filter.process(aligned_depth_frame)
-
+        aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
+        aligned_depth_frame = hole_filling.process(aligned_depth_frame)
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
@@ -203,7 +208,7 @@ try:
             depth = depth_image[calib_point[0],calib_point[1]]
             print("depth: " + str(depth))
             world_coordinate= camera_matrix.dot(np.array([calib_point[0], calib_point[1], depth]).transpose())
-            print(world_coordinate)
+            print("World coordinate: ",world_coordinate)
             # cv2.imshow('depth Image', depth_image)
             # cv2.imshow('color image', color_image)
             
@@ -215,6 +220,7 @@ try:
             
             cv2.circle(color_image, center, 5, (0, 0, 255), -1)
             depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            cv2.circle(depth_colormap, center, 5, (0, 0, 255), -1)
             images = np.hstack((color_image, depth_colormap))
             cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
             cv2.imshow('Align Example', images)
@@ -232,10 +238,6 @@ try:
         # update the points queue
         pts.appendleft(center)
         
-
-        
-
-
         # loop over the set of tracked points
         for i in range(1, len(pts)):
             # if either of the tracked points are None, ignore

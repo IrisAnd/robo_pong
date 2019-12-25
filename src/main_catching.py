@@ -52,6 +52,7 @@ def main():
     # initialize variables for trajectory calculation
     buffer_len = 30 #number of points that will be taken into account for trajectory calculation
     pts = deque(maxlen=buffer_len)
+    camera_pts = deque(maxlen=buffer_len)
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
     none_count = 0
@@ -59,7 +60,11 @@ def main():
     # Declare depth filters
     dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
     spat_filter = rs.spatial_filter()  # Spatial    - edge-preserving spatial smoothing
+    hole_filling = rs.hole_filling_filter()
     temp_filter = rs.temporal_filter()  # Temporal   - reduces temporal noise
+
+    depth_to_disparity = rs.disparity_transform(True)
+    disparity_to_depth = rs.disparity_transform(False)
 
     # loop for video
     while True:
@@ -75,8 +80,15 @@ def main():
 
         # Filter aligned depth frame
         #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
+        aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
         aligned_depth_frame = spat_filter.process(aligned_depth_frame)
         aligned_depth_frame = temp_filter.process(aligned_depth_frame)
+        aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
+        aligned_depth_frame = hole_filling.process(aligned_depth_frame)
+
+        # Get images to work on
+        depth_image = np.asanyarray(aligned_depth_frame.get_data())
+        color_image = np.asanyarray(color_frame.get_data())
 
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
@@ -96,11 +108,13 @@ def main():
             
             #get depth from depth_image and append to center, append the current center to the points list
             depth = depth_image[center[0],center[1]]
+
             center.append(depth)
+            camera_pts.append(center)
 
-            # TODO Transfrom center from camera coordinate system to robot coordinate system and append it to pts
-
-            pts.append(center) # TODO this center should be in robot coordinates
+            # Transform point from camera coordinates to robot coordinate frame
+            center_world = bte.transform_to_world(center)
+            pts.append(center_world)
 
             #append current time to time vector
             toc = time.time()
@@ -118,29 +132,33 @@ def main():
             time_vec.clear()
             none_count = 0
 
-        # if more then 5 ball positions were detected, calculate the trajectory estimation
-        if(len(pts) > 5):
+        # if more then x ball positions were detected, calculate the trajectory estimation
+        if(len(pts) > 10):
 
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
+
+            catch_point = cpc.get_catching_point(params_x,params_y,params_z)
+
+            #TODO: Send catching point to robot
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
             for point in future_points.transpose():
                 
-                # TODO Retransform back to camera coordinate system to be able to draw it in image
-                cv2.drawMarker(ball_image, tuple(point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
+                camera_point = bte.transform_to_camera(point)
+                cv2.drawMarker(ball_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
 
         # loop over the set of tracked points to draw the balls past movement
-        for i in range(1, len(pts)):
+        for i in range(1, len(camera_pts)):
 
             # compute the thickness of the line and
             # draw the connecting lines
             thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-            cv2.line(ball_image, tuple(pts[i - 1][:2]), tuple(pts[i][:2]), (0, 0, 255), thickness)
+            cv2.line(ball_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
 
         # Display results
         cv2.imshow("Result image", ball_image)
-        out.write(ball_image)
+        #out.write(ball_image)
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop

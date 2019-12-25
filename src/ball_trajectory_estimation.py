@@ -3,38 +3,24 @@ from scipy.optimize import fsolve
 import argparse
 import time
 
-# Following is the matlab code on which this program is based on
-# 
-# function [New_Vector] = estimate_vector3(V,t,n)
+camera_matrix = np.array([[-0.47068177,  1.65131359,  0.06589142],
+ [ 2.11572391, -1.07885886, -0.22597733],
+ [-0.37933887, -0.57711217,  0.27240474]])
 
-# % estimate the track by m points using phisycs Neuton laws
-# % the track will be parabolic in y axis use gravity in earth
-# x=V(1,:);
-# y=V(2,:);
-# z=V(3,:);     
-# m=length(t);
-
-# dt=mean(diff(t));
-# t = t - t(round(m/2));  % reduce condition number
-# dt=dt/4;
-# tt=t(m) + dt:dt: t(m) + n*dt;
+camera_matrix_inv = np.linalg.inv(camera_matrix)
 
 
-# T1 = [t ;ones(1,length(t))];
-# % T2 = [t.^2 ; t ;ones(1,length(t))];
+def transform_to_world(point):
 
-# % TT1 = [tt ;ones(1,length(tt))];
-# TT2 = [tt.^2 ; tt ;ones(1,length(tt))];
+    world_coordinate= camera_matrix.dot(np.array([point[0], point[1], point[2]]).transpose())
+    return world_coordinate
 
-# % g = 9.8 m/s  ,   y=0.5 g t^2  ,y[cm]     theta=0.1rad between camera to the world
-# a = 9800*cos(0.1);  
-# arr_x =  x /T1;
-# arr_y = (y-0.5*a*t.^2)/T1;
-# arr_z =  z/T1;
+def transform_to_camera(point):
 
-# New_Vector = [[0,arr_x]; [0.5*a,arr_y] ; [0,arr_z]]*TT2;
+    camera_coordinate= camera_matrix_inv.dot(np.array([point[0], point[1], point[2]]).transpose())
+    return camera_coordinate
 
-# end
+
 
 def estimate_trajectory_pixel (first_points, time):
     #params_x = np.array([Ax, Bx, Cx])
