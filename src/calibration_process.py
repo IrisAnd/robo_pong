@@ -155,11 +155,11 @@ try:
 
         # Filter aligned depth frame
         #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
-        #aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
-        #aligned_depth_frame = spat_filter.process(aligned_depth_frame)
-        #aligned_depth_frame = temp_filter.process(aligned_depth_frame)
-        #aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
-        #aligned_depth_frame = hole_filling.process(aligned_depth_frame)
+        aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
+        aligned_depth_frame = spat_filter.process(aligned_depth_frame)
+        aligned_depth_frame = temp_filter.process(aligned_depth_frame)
+        aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
+        aligned_depth_frame = hole_filling.process(aligned_depth_frame)
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
