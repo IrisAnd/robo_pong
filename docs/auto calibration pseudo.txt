@@ -1,0 +1,55 @@
+Robot Server:
+open robot socket
+listen...
+
+  Robot Client:
+  increase robot speed
+  start execution in New_RAS
+      
+      Robot Server:
+      bind robot client
+      wait for commands to transmit...
+
+---
+
+Camera Server:
+open camera socket
+listen for camera client...
+
+  Camera Client:
+  connect to camera server
+  wait for data...
+    
+    if client connected:
+      
+      Camera Server:
+      define 9 robot coordinates: world_coordinates with X,Y,Z
+      for coordinates in world_coordinates:
+        MOVP command with coordinates
+        wait till coordinates reached (5 seconds)
+        send coordinates to Camera Client
+        wait till camera coordinates calculated (2 seconds)
+      
+          if coordinates received:
+            
+            Camera Client:
+              save received world coordinates in array
+              for 10 times:
+                calculate ball position in pixel x,y and depth (px) -> camera coordinates 1 to 10
+              average 10 camera coordinates to balance depth variance
+              save camera coordinates into numpy array
+
+      if all world / camera coordinates saved at client:
+         
+         Camera Client:
+         calculate transformation matrix and its inverse (IM)
+         print all world coordinates and their prediction via IM*px -> validate results
+         
+         wait for enter / proceed, if results are satisfying
+
+         start throwing and catching procedure
+         
+         
+
+
+  
