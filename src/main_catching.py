@@ -167,7 +167,7 @@ def main():
 
         # Display results
         cv2.imshow("Result image", ball_image)
-        #out.write(ball_image)
+        #out.write(ball_image)  # uncomment to save video
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop

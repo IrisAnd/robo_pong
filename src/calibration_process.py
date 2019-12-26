@@ -71,10 +71,15 @@ def grab_contours(cnts):
     # return the actual contours array
     return cnts
 
-camera_matrix = np.array([[-0.63794924 , 2.08362029 , 0.02540786],[ 2.16947552 ,-1.10534136 ,-0.23741742],[-0.42861632 ,-0.45252261 , 0.27626879]])
-camera_matrix = np.array([[-0.47068177,  1.65131359,  0.06589142],
- [ 2.11572391, -1.07885886, -0.22597733],
- [-0.37933887, -0.57711217,  0.27240474]])
+
+camera_matrix = np.array([[-0.99358035,  1.48988609,  0.06365766],
+ [ 2.12992587,  0.20779916, -0.31663985],
+ [ 0.32637615, -2.39271702,  0.37903702]])
+    
+ #   [[-0.50537972,  2.02322542, -0.05800826],
+ #[ 2.13099825, -0.02095382, -0.28145263],
+ #[ 0.57294764 ,-1.87226244 , 0.28903634]])
+ 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video", help="path to the (optional) video file")
@@ -143,17 +148,18 @@ try:
         aligned_depth_frame = aligned_frames.get_depth_frame() # aligned_depth_frame is a 640x480 depth image
         color_frame = aligned_frames.get_color_frame()
 
+        
         # Validate that both frames are valid
         if not aligned_depth_frame or not color_frame:
             continue
 
         # Filter aligned depth frame
         #aligned_depth_frame = dec_filter.process(aligned_depth_frame)
-        aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
-        aligned_depth_frame = spat_filter.process(aligned_depth_frame)
-        aligned_depth_frame = temp_filter.process(aligned_depth_frame)
-        aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
-        aligned_depth_frame = hole_filling.process(aligned_depth_frame)
+        #aligned_depth_frame = depth_to_disparity.process(aligned_depth_frame)
+        #aligned_depth_frame = spat_filter.process(aligned_depth_frame)
+        #aligned_depth_frame = temp_filter.process(aligned_depth_frame)
+        #aligned_depth_frame = disparity_to_depth.process(aligned_depth_frame)
+        #aligned_depth_frame = hole_filling.process(aligned_depth_frame)
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
@@ -205,10 +211,16 @@ try:
             calib_point = center
             print("x: " + str(calib_point[0]))
             print("y: " + str(calib_point[1]))
-            depth = depth_image[calib_point[0],calib_point[1]]
-            print("depth: " + str(depth))
-            world_coordinate= camera_matrix.dot(np.array([calib_point[0], calib_point[1], depth]).transpose())
-            print("World coordinate: ",world_coordinate)
+
+            if calib_point[1]<= depth_image.shape[0] and calib_point[0] <= depth_image.shape[1]:
+                depth = depth_image[calib_point[1],calib_point[0]]
+                #depth_new = aligned_depth_frame.get_distance(calib_point[0],calib_point[1])
+                print("depth: " + str(depth))
+               # print("depthnew: " + str(depth_new))
+                world_coordinate= camera_matrix.dot(np.array([calib_point[0], calib_point[1], depth]).transpose())
+                print("World coordinate: ",world_coordinate)
+            else:
+                print("Point not in image")
             # cv2.imshow('depth Image', depth_image)
             # cv2.imshow('color image', color_image)
             
@@ -219,11 +231,14 @@ try:
             #bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
             
             cv2.circle(color_image, center, 5, (0, 0, 255), -1)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.3), cv2.COLORMAP_JET)
+
             cv2.circle(depth_colormap, center, 5, (0, 0, 255), -1)
             images = np.hstack((color_image, depth_colormap))
             cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
             cv2.imshow('Align Example', images)
+            cv2.imshow('Depth Image', depth_image)
+
             
 
 
