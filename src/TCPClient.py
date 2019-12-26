@@ -23,6 +23,9 @@ class TCPClient:
         self.s.connect((self.TCP_IP, self.TCP_PORT))
         print('connection successful.')
 
+    def close(self):
+        self.s.close()
+
     
     def send_message(self,MESSAGE):
 
@@ -40,7 +43,7 @@ class TCPClient:
         # while data is not None:
         #     data = self.s.recv(self.BUFFER_SIZE)
         #     print("received data:", repr(data))
-        self.s.close()
+        
 
 def main():
     client = TCPClient()

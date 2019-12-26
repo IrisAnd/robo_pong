@@ -176,6 +176,7 @@ def main():
 
     # close all windows
     cv2.destroyAllWindows()
+    client.close()
 
     
 
