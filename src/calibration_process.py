@@ -16,37 +16,6 @@ import sys
 import argparse
 from collections import deque
 
-def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
-    # initialize the dimensions of the image to be resized and
-    # grab the image size
-    dim = None
-    (h, w) = image.shape[:2]
-
-    # if both the width and height are None, then return the
-    # original image
-    if width is None and height is None:
-        return image
-
-    # check to see if the width is None
-    if width is None:
-        # calculate the ratio of the height and construct the
-        # dimensions
-        r = height / float(h)
-        dim = (int(w * r), height)
-
-    # otherwise, the height is None
-    else:
-        # calculate the ratio of the width and construct the
-        # dimensions
-        r = width / float(w)
-        dim = (width, int(h * r))
-
-    # resize the image
-    resized = cv2.resize(image, dim, interpolation=inter)
-
-    # return the resized image
-    return resized
-
 
 def grab_contours(cnts):
     # if the length the contours tuple returned by cv2.findContours
@@ -75,16 +44,15 @@ def grab_contours(cnts):
 camera_matrix = np.array([[-0.99358035,  1.48988609,  0.06365766],
  [ 2.12992587,  0.20779916, -0.31663985],
  [ 0.32637615, -2.39271702,  0.37903702]])
-    
- #   [[-0.50537972,  2.02322542, -0.05800826],
- #[ 2.13099825, -0.02095382, -0.28145263],
- #[ 0.57294764 ,-1.87226244 , 0.28903634]])
- 
-# construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-v", "--video", help="path to the (optional) video file")
-ap.add_argument("-b", "--buffer", type=int, default=64, help="max buffer size")
-args = vars(ap.parse_args())
+
+
+try:
+    os.remove('calibration.txt')
+except:
+    print("No data file found, creating new one")
+
+filehandle = open('calibration.txt', 'a')
+
 
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space, then initialize the
@@ -92,9 +60,6 @@ args = vars(ap.parse_args())
 #HSV
 orangeLower = (10, 170, 70)
 orangeUpper = (20, 255, 255)
-pts = deque(maxlen=args["buffer"])
-
-
 
 # Create a pipeline
 pipeline = rs.pipeline()
@@ -174,9 +139,9 @@ try:
             break
 
         #cv2.imshow('frame', frame)
-        # resize the frame, blur it, and convert it to the HSV
+        # blur it, and convert it to the HSV
         # color space
-        #color_image = resize(color_image, width=600)
+       
         blurred = cv2.GaussianBlur(color_image, (11, 11), 0)
         hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
@@ -250,21 +215,6 @@ try:
                             (0, 255, 255), 2)
                 cv2.circle(color_image, center, 5, (0, 0, 255), -1)
 
-        # update the points queue
-        pts.appendleft(center)
-        
-        # loop over the set of tracked points
-        for i in range(1, len(pts)):
-            # if either of the tracked points are None, ignore
-            # them
-            if pts[i - 1] is None or pts[i] is None:
-                continue
-
-            # otherwise, compute the thickness of the line and
-            # draw the connecting lines
-            thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
-            cv2.line(color_image, pts[i - 1], pts[i], (0, 0, 255), thickness)
-
         # show the color_image to our screen
         cv2.imshow("color_image", color_image)
         key = cv2.waitKey()
@@ -272,5 +222,15 @@ try:
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):
             break
+
+        if key == ord("s"):
+            for listitem in center:
+                filehandle.write('%s ' % listitem)
+            
+            # get Robot coordinates here
+            # for item in robot_position:
+            #     filehandle.write('%s ' % item)
+            filehandle.write('\n')
 finally:
+    filehandle.close()
     pipeline.stop()

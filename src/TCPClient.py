@@ -39,10 +39,13 @@ class TCPClient:
             self.s.send(byte_array)
             #print('sent {}'.format(byte_array))
 
-        # data = "data"
-        # while data is not None:
-        #     data = self.s.recv(self.BUFFER_SIZE)
-        #     print("received data:", repr(data))
+    # TODO: code that recieves robot coordinate as 3 point array
+    # def recieve_message(self):
+    #     data = "data"
+    #     while data is not None:
+    #         data = self.s.recv(self.BUFFER_SIZE)
+    #         print("received data:", repr(data))
+    #     return data
         
 
 def main():
