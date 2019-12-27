@@ -1,25 +1,34 @@
 import numpy as np
 # 3D Robo frame (mm)
-Robo1 = [0,415.94,339.15]
-Robo2 = [-255.46,415.95,181.25]
-Robo3 = [215.77,390.89,-138.67]
-Robo4 = [197.75,24.8,643.90]
-Robo5 = [223.49,-421.01,269.03]
-Robo6 = [440.59,-387.41,-12.23]
-Robo7 = [151.70,-340.45,510.66]
-Robo8 = [228.76,144.81,208.80]
-Robo9 = [573.34,-40.29,-38.7]
+Robo1 = [-221.63,449.19,-108.02]
+Robo2 = [57.03,296.45,504.09]
+Robo3 = [377.84,545.41,-0.86]
+Robo4 = [437.44,124.65,481.03]
+Robo5 = [713.23,187.79,80.57]
+Robo6 = [596.38,-196.88,58.72]
+Robo7 = [542.61,-365.15,293.54]
+Robo8 = [211.25,-427.34,487.84]
+Robo9 = [694.05,-4.92,223.01]
+Robo10 = []
+Robo11 = []
+Robo12 = []
+Robo13 = []
 
-# # 3D Camera frame (px: (x,y,z))
-# Cam1 = [453,240,1801] # green block
-# Cam2 = [432,268,1911] # red block
-# Cam3 = [448,407,1778] # blue block
-# Cam4 = [309,101,2526]
-# Cam5 = [128,267,2445]
-# Cam6 = [134,407,2434]
-# Cam7 = [160,155,1726]
-# Cam8 = [370,300,1886]
-# Cam9 = [285,452,2560]
+# 3D Camera frame (px: (x,y,z))
+Cam1 = [444,312,2406] # green block
+Cam2 = [417,176,2084] # red block
+Cam3 = [497,348,1911] # blue block
+Cam4 = [351,191,1747]
+Cam5 = [401,354,1529]
+Cam6 = [247,356,1671]
+Cam7 = [185,252,1753]
+Cam8 = [184,170,1952]
+Cam9 = [321,301,1549]
+Cam10 =[]
+Cam11 =[]
+Cam12 =[]
+Cam13 =[]
+
 
 
 A_list = []
@@ -29,39 +38,44 @@ bz_list = []
 
 
 # open file and read the content in a list
-with open('calibration.txt', 'r') as filehandle:
-    for line in filehandle:
-        # remove linebreak which is the last character of the string
-        point_string = line[:-1]
-        point = [int(x) for x in point_string.split()] 
+# with open('calibration.txt', 'r') as filehandle:
+#     for line in filehandle:
+#         # remove linebreak which is the last character of the string
+#         point_string = line[:-1]
+#         point = [int(x) for x in point_string.split()] 
 
-        bx_list.append(point[0])
-        by_list.append(point[1])
-        bz_list.append(point[2])
-        #A_list.append([point[3],point[4],point[5]])
+#         bx_list.append(point[0])
+#         by_list.append(point[1])
+#         bz_list.append(point[2])
+#         #A_list.append([point[3],point[4],point[5]])
 
 
-for i in np.arange(1,len(bx_list)+1):
+for i in np.arange(1,10):
     robo_point = eval('Robo' + str(i))
     A_list.append(robo_point)
 
-  
+    point = eval('Cam' + str(i))
+    bx_list.append(point[0])
+    by_list.append(point[1])
+    bz_list.append(point[2])
 
 # Transform list to numpy array for further processing
 A = np.asarray(A_list)
 bx = np.asarray(bx_list)
 by = np.asarray(by_list)
 bz = np.asarray(bz_list)
-
+print(A)
+print(bx)
+print(by)
+print(bz)
 
 
 #A = np.array([Robo1,Robo2,Robo3])
 
 #bx = np.array([Cam1[0], Cam2[0], Cam3[0]])
 #xi = np.linalg.solve(A, bx)
-xi = np.linalg.lstsq(A, bx, rcond=None)[0]
-#print(xi)
-
+xi= np.linalg.lstsq(A, bx, rcond=None)[0]
+print(xi)
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xi), bx)))
 
@@ -71,7 +85,7 @@ xi = np.linalg.lstsq(A, bx, rcond=None)[0]
 #xii = np.linalg.solve(A, by)
 
 xii = np.linalg.lstsq(A, by, rcond=None)[0]
-#print(xii)
+print((xii))
 
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xii), by)))
@@ -81,12 +95,12 @@ xii = np.linalg.lstsq(A, by, rcond=None)[0]
 #xiii = np.linalg.solve(A, bz)
 
 xiii = np.linalg.lstsq(A, bz, rcond=None)[0]
-#print(xiii)
+print(xiii)
 
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xiii), bz)))
 
-TrafoMatrix = np.array([xi, xii, xiii])
+TrafoMatrix = np.array([xi, xii, xiii]).transpose()
 print("Camera Matrix:")
 print(TrafoMatrix)
 print()
