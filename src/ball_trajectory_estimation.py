@@ -3,21 +3,23 @@ from scipy.optimize import fsolve
 import argparse
 import time
 
-camera_matrix = np.array([[-0.47068177,  1.65131359,  0.06589142],
- [ 2.11572391, -1.07885886, -0.22597733],
- [-0.37933887, -0.57711217,  0.27240474]])
-
+camera_matrix = np.array([[-1.38537711e-01,  5.36769204e-01, -1.04725998e+00,  2.21072026e+03],
+ [ 2.90797523e+00,  1.29089884e-01,  1.06705665e-01, -1.14894323e+03],
+ [ 1.13721285e-01, -3.09858547e+00, -3.44271153e-01,  1.66794680e+03],
+ [-9.75781955e-19, -3.25260652e-19,  1.08420217e-19,  1.00000000e+00]])
+ 
 camera_matrix_inv = np.linalg.inv(camera_matrix)
 
 
 def transform_to_world(point):
 
-    world_coordinate= camera_matrix.dot(np.array([point[0], point[1], point[2]]).transpose())
-    return world_coordinate
+    world_coordinate= np.dot(camera_matrix,np.array([point[0], point[1], point[2],1]))
+
+    return world_coordinate[0:3]
 
 def transform_to_camera(point):
 
-    camera_coordinate= camera_matrix_inv.dot(np.array([point[0], point[1], point[2]]).transpose())
+    camera_coordinate= np.dot(camera_matrix_inv,np.array([point[0], point[1], point[2],1]))
     return camera_coordinate
 
 

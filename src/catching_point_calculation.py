@@ -5,8 +5,7 @@ from sympy import Symbol
 
 def get_intersection_time(params_x,params_y,params_z):
     t = Symbol('t')
-    r_out = 600
-    r_in = 300
+    r_out = 500
     T_mat_poly = np.array([t*t,t,1]).transpose()
     T_mat_lin = np.array([t,1]).transpose()
 
@@ -19,7 +18,7 @@ def get_intersection_time(params_x,params_y,params_z):
     temp =[]
     for i in t:
         if (i.imag == 0):
-            temp.append(i)
+            temp.append(i.real)
     t = temp
     if t :
          
@@ -44,7 +43,7 @@ def calc_catching_point(params_x, params_y, params_z, t):
 def check_boundaries(point):
     #check that x < 0 and z >0
     #print('point: ' + str(point))
-    if point[0]<0 and point[2]>0:
+    if point[0]>250 and point[2]>0:
         #print('point: ' + str(point))
         return True
     else:
@@ -57,10 +56,11 @@ def get_catching_point(params_x,params_y,params_z):
     if t is not None:
 
         catch_point=calc_catching_point(params_x,params_y,params_z,t)
+        #print("catch point: ", catch_point)
         if check_boundaries(catch_point):
             return catch_point
     else:
-        #print("No valid catching point found")
+        print("No valid catching point found")
         return None
 
 def main():

@@ -111,7 +111,7 @@ def main():
         if center is not None :
             
             #get depth from depth_image and append to center, append the current center to the points list
-            depth = depth_image[center[0],center[1]]
+            depth = depth_image[center[1],center[0]]
 
             center.append(depth)
             camera_pts.append(center)
@@ -125,7 +125,8 @@ def main():
             time_vec.append(toc-tic)
 
             #write the time and detected point to csv output file
-            writer.writerow([toc, center]) # TODO this center should be in robot coordinates
+            writer.writerow([toc, center_world]) # TODO this center should be in robot coordinates
+            #client.send_message(np.round(center_world,2).tolist())
 
         else:
             none_count = none_count+1
@@ -138,17 +139,17 @@ def main():
 
         # if more then x ball positions were detected, calculate the trajectory estimation
         if(len(pts) > 10):
-
+            toce= time.time()
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
             catch_point = cpc.get_catching_point(params_x,params_y,params_z)
-            catch_point= [5.06,904.34,567.98]
 
 
             #TODO: Send catching point to robot
             if catch_point is not None: 
-                print ("Catch Position: ", catch_point)
-                client.send_message(catch_point)
+                print("Sending point: ",np.round(catch_point,2))
+                client.send_message(np.round(catch_point,2))
+                print("Sent :",(time.time()-toce))
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)

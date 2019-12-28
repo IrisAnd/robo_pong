@@ -49,9 +49,11 @@ camera_matrix = np.array([[-2.27628685,  3.45648074,  0.1830783 ],
  [ 4.04500076, -1.36951856, -0.5396492 ],
  [-1.51393397, -0.93862703,  0.59329872]])
 
-# camera_matrix = np.array([[-2.27628685,  4.04500076, -1.51393397],
-#  [ 3.45648074, -1.36951856, -0.93862703],
-#  [ 0.1830783,  -0.5396492,   0.59329872]])
+camera_matrix = np.array([[-1.38537711e-01,  5.36769204e-01, -1.04725998e+00,  2.21072026e+03],
+ [ 2.90797523e+00,  1.29089884e-01,  1.06705665e-01, -1.14894323e+03],
+ [ 1.13721285e-01, -3.09858547e+00, -3.44271153e-01,  1.66794680e+03],
+ [-9.75781955e-19, -3.25260652e-19,  1.08420217e-19,  1.00000000e+00]])
+
 print(camera_matrix)
 try:
     os.remove('calibration.txt')
@@ -191,7 +193,7 @@ try:
                 #depth_new = aligned_depth_frame.get_distance(calib_point[0],calib_point[1])
                 print("depth: " + str(depth))
                # print("depthnew: " + str(depth_new))
-                world_coordinate= camera_matrix.dot(np.transpose(np.array([calib_point[0], calib_point[1], depth])))
+                world_coordinate= np.dot(camera_matrix,np.array([calib_point[0], calib_point[1], depth,1]))
                 print("World coordinate: ",world_coordinate)
             else:
                 print("Point not in image")
@@ -205,7 +207,7 @@ try:
             #bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
             
             cv2.circle(color_image, center, 5, (0, 0, 255), -1)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.3), cv2.COLORMAP_JET)
+            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
             cv2.circle(depth_colormap, center, 5, (0, 0, 255), -1)
             images = np.hstack((color_image, depth_colormap))
