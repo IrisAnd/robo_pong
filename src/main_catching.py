@@ -137,7 +137,7 @@ def main():
             none_count = 0
 
         # if more then x ball positions were detected, calculate the trajectory estimation
-        if(len(pts) > 10):
+        if(len(pts) > 5):
 
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
