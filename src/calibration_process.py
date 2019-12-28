@@ -41,18 +41,11 @@ def grab_contours(cnts):
     return cnts
 
 
-# camera_matrix = np.array([[-0.34250764,  1.59272568,  0.0229035 ],
-#  [ 2.72670532, -0.68577947, -0.50570559],
-#  [-0.3261723,  -1.39798248,  0.5276124 ]])
 
 camera_matrix = np.array([[-2.27628685,  3.45648074,  0.1830783 ],
  [ 4.04500076, -1.36951856, -0.5396492 ],
  [-1.51393397, -0.93862703,  0.59329872]])
 
-# camera_matrix = np.array([[-2.27628685,  4.04500076, -1.51393397],
-#  [ 3.45648074, -1.36951856, -0.93862703],
-#  [ 0.1830783,  -0.5396492,   0.59329872]])
-print(camera_matrix)
 try:
     os.remove('calibration.txt')
 except:
@@ -84,11 +77,6 @@ profile = pipeline.start(config)
 depth_sensor = profile.get_device().first_depth_sensor()
 depth_scale = depth_sensor.get_depth_scale()
 print("Depth Scale is: " , depth_scale)
-
-# We will be removing the background of objects more than
-#  clipping_distance_in_meters meters away
-clipping_distance_in_meters = 1 #1 meter
-clipping_distance = clipping_distance_in_meters / depth_scale
 
 # Declare depth filters
 dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
@@ -135,9 +123,6 @@ try:
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
-
-        print(depth_image.shape)
-        print(color_image.shape)
 
         # Remove background - Set pixels further than clipping_distance to grey
         # then we have reached the end of the video
@@ -191,7 +176,7 @@ try:
                 #depth_new = aligned_depth_frame.get_distance(calib_point[0],calib_point[1])
                 print("depth: " + str(depth))
                # print("depthnew: " + str(depth_new))
-                world_coordinate= camera_matrix.dot(np.transpose(np.array([calib_point[0], calib_point[1], depth])))
+                world_coordinate= np.dot(camera_matrix,np.array([calib_point[0], calib_point[1], depth,1]))
                 print("World coordinate: ",world_coordinate)
             else:
                 print("Point not in image")
@@ -205,7 +190,7 @@ try:
             #bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
             
             cv2.circle(color_image, center, 5, (0, 0, 255), -1)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.3), cv2.COLORMAP_JET)
+            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
             cv2.circle(depth_colormap, center, 5, (0, 0, 255), -1)
             images = np.hstack((color_image, depth_colormap))

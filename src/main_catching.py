@@ -15,19 +15,19 @@ from TCPClient import TCPClient
 def main():
 
     # create new csv file to save results
-    try:
-        os.remove('data.csv')
-    except:
-        print("No data file found, creating new one")
-    file = open('data.csv', mode = 'a')
-    writer = csv.writer(file,delimiter=',', quotechar=' ')
-    writer.writerow(["time", "point"])
+    # try:
+    #     os.remove('data.csv')
+    # except:
+    #     print("No data file found, creating new one")
+    # file = open('data.csv', mode = 'a')
+    # writer = csv.writer(file,delimiter=',', quotechar=' ')
+    # writer.writerow(["time", "point"])
 
     # Open TCP connection to robot
     client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -103,15 +103,13 @@ def main():
         color_image = np.asanyarray(color_frame.get_data())
         
         # Detect the orange ball and return image with results
-        ball_image,center = bd.fast_ball_detection(color_image,(pts or [None])[-1])
+        center,radius = bd.detect_ball(color_image)
 
-        
-        
         # update the points queue
         if center is not None :
             
             #get depth from depth_image and append to center, append the current center to the points list
-            depth = depth_image[center[0],center[1]]
+            depth = depth_image[center[1],center[0]]
 
             center.append(depth)
             camera_pts.append(center)
@@ -125,7 +123,8 @@ def main():
             time_vec.append(toc-tic)
 
             #write the time and detected point to csv output file
-            writer.writerow([toc, center]) # TODO this center should be in robot coordinates
+            #writer.writerow([toc, center_world]) # TODO this center should be in robot coordinates
+            #client.send_message(np.round(center_world,2).tolist())
 
         else:
             none_count = none_count+1
@@ -133,6 +132,7 @@ def main():
         #if no points were detected for some time (10 frames), reset the point vector and polynomial calculation
         if none_count >10:
             pts.clear()
+            camera_pts.clear()
             time_vec.clear()
             none_count = 0
 
@@ -142,13 +142,13 @@ def main():
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
             catch_point = cpc.get_catching_point(params_x,params_y,params_z)
-            catch_point= [5.06,904.34,567.98]
 
 
             #TODO: Send catching point to robot
-            if catch_point is not None: 
-                print ("Catch Position: ", catch_point)
-                client.send_message(catch_point)
+            if catch_point is not None:
+                client.send_message(np.round(catch_point,2))
+                print("Processing time:",(time.time()-toce))
+                print("Sent point: ",np.round(catch_point,2))
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
@@ -156,6 +156,7 @@ def main():
                 
                 camera_point = bte.transform_to_camera(point)
                 cv2.drawMarker(ball_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
+
 
         # loop over the set of tracked points to draw the balls past movement
         for i in range(1, len(camera_pts)):

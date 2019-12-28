@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 # 3D Robo frame (mm)
 Robo1 = [-221.63,449.19,-108.02]
 Robo2 = [57.03,296.45,504.09]
@@ -49,25 +50,27 @@ bz_list = []
 #         bz_list.append(point[2])
 #         #A_list.append([point[3],point[4],point[5]])
 
+cam_points = []
 
 for i in np.arange(1,10):
     robo_point = eval('Robo' + str(i))
     A_list.append(robo_point)
 
     point = eval('Cam' + str(i))
+    cam_points.append(point)
     bx_list.append(point[0])
     by_list.append(point[1])
     bz_list.append(point[2])
 
 # Transform list to numpy array for further processing
-A = np.asarray(A_list)
+#print(A_list)
+#print(cam_points)
+A = np.array(A_list)
 bx = np.asarray(bx_list)
 by = np.asarray(by_list)
 bz = np.asarray(bz_list)
-print(A)
-print(bx)
-print(by)
-print(bz)
+cam = np.array(cam_points)
+
 
 
 #A = np.array([Robo1,Robo2,Robo3])
@@ -75,7 +78,7 @@ print(bz)
 #bx = np.array([Cam1[0], Cam2[0], Cam3[0]])
 #xi = np.linalg.solve(A, bx)
 xi= np.linalg.lstsq(A, bx, rcond=None)[0]
-print(xi)
+#print(xi)
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xi), bx)))
 
@@ -85,7 +88,7 @@ print(xi)
 #xii = np.linalg.solve(A, by)
 
 xii = np.linalg.lstsq(A, by, rcond=None)[0]
-print((xii))
+#print((xii))
 
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xii), by)))
@@ -95,12 +98,21 @@ print((xii))
 #xiii = np.linalg.solve(A, bz)
 
 xiii = np.linalg.lstsq(A, bz, rcond=None)[0]
-print(xiii)
+#print(xiii)
 
 # check if solution is correct
 #print("Result: " + str(np.allclose(np.dot(A, xiii), bz)))
 
-TrafoMatrix = np.array([xi, xii, xiii]).transpose()
+
+#Find the rotation and translation vectors.
+# ret,rvecs, tvecs = cv.solvePnP(objp, corners2, mtx, dist)
+#project 3D points to image plane
+# imgpts, jac = cv.projectPoints(axis, rvecs, tvecs, mtx, dist)
+
+
+
+
+TrafoMatrix = np.array([xi, xii, xiii])
 print("Camera Matrix:")
 print(TrafoMatrix)
 print()
