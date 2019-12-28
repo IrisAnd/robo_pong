@@ -41,11 +41,18 @@ def grab_contours(cnts):
     return cnts
 
 
-camera_matrix = np.array([[-0.99358035,  1.48988609,  0.06365766],
- [ 2.12992587,  0.20779916, -0.31663985],
- [ 0.32637615, -2.39271702,  0.37903702]])
+# camera_matrix = np.array([[-0.34250764,  1.59272568,  0.0229035 ],
+#  [ 2.72670532, -0.68577947, -0.50570559],
+#  [-0.3261723,  -1.39798248,  0.5276124 ]])
 
+camera_matrix = np.array([[-2.27628685,  3.45648074,  0.1830783 ],
+ [ 4.04500076, -1.36951856, -0.5396492 ],
+ [-1.51393397, -0.93862703,  0.59329872]])
 
+# camera_matrix = np.array([[-2.27628685,  4.04500076, -1.51393397],
+#  [ 3.45648074, -1.36951856, -0.93862703],
+#  [ 0.1830783,  -0.5396492,   0.59329872]])
+print(camera_matrix)
 try:
     os.remove('calibration.txt')
 except:
@@ -149,8 +156,8 @@ try:
         # a series of dilations and erosions to remove any small
         # blobs left in the mask
         mask = cv2.inRange(hsv, orangeLower, orangeUpper)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
+        mask = cv2.erode(mask, None, iterations=1)
+        mask = cv2.dilate(mask, None, iterations=1)
 
         #print(mask.shape)
 
@@ -160,6 +167,7 @@ try:
                                 cv2.CHAIN_APPROX_SIMPLE)
         cnts = grab_contours(cnts)
         center = None
+        center_3D = None
 
         # only proceed if at least one contour was found
         if len(cnts) > 0:
@@ -179,10 +187,11 @@ try:
 
             if calib_point[1]<= depth_image.shape[0] and calib_point[0] <= depth_image.shape[1]:
                 depth = depth_image[calib_point[1],calib_point[0]]
+                center_3D = [calib_point[0],calib_point[1],depth]
                 #depth_new = aligned_depth_frame.get_distance(calib_point[0],calib_point[1])
                 print("depth: " + str(depth))
                # print("depthnew: " + str(depth_new))
-                world_coordinate= camera_matrix.dot(np.array([calib_point[0], calib_point[1], depth]).transpose())
+                world_coordinate= camera_matrix.dot(np.transpose(np.array([calib_point[0], calib_point[1], depth])))
                 print("World coordinate: ",world_coordinate)
             else:
                 print("Point not in image")
@@ -224,7 +233,8 @@ try:
             break
 
         if key == ord("s"):
-            for listitem in center:
+            print("Saving point: ", center_3D)
+            for listitem in center_3D:
                 filehandle.write('%s ' % listitem)
             
             # get Robot coordinates here
