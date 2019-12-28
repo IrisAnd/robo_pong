@@ -26,54 +26,27 @@ using namespace cv;
 // connect to laptop and get integer array
 void sendMessage(cv::Point3f Point, SOCKET &ClientSocket)
 {
-    int iResult;
     int iSendResult;
-    char recvbuf[BUFLEN];
 
     float coordinates[3];
     coordinates[0] = Point.x;
     coordinates[1] = Point.y;
     coordinates[2] = Point.z;
     byte bytes_temp[4];
-    memcpy(bytes_temp, (unsigned char *)(&float_variable), 4);
 
-    iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-    if (iSendResult == SOCKET_ERROR)
+    for (int c = 0; c < 3; c++)
     {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        closesocket(ClientSocket);
-        WSACleanup();
-    }
-    printf("Bytes sent: %d\n", iSendResult);
+        memcpy(bytes_temp, (unsigned char *)(&coordinates[c]), 4);
 
-    int i = 0;
-
-    // wait for client
-    printf("Waiting for data ...\n");
-    while (1)
-    {
-        // int recv(SOCKET s, char *buf, int len, int flags);
-        // returns number of bytes received and the buffer pointed to by the buf parameter will contain this data received
-        iResult = recv(ClientSocket, recvbuf, BUFLEN, 0);
-        if (iResult > 0)
+        iSendResult = send(ClientSocket, bytes_temp, sizeof(bytes_temp), 0);
+        if (iSendResult == SOCKET_ERROR)
         {
-            float f;
-            memcpy(&f, &recvbuf, sizeof(f));
-            arrToBeFilled[i] = f;
-            cout << f << endl;
-            printf("Bytes received: %d\n", iResult);
-
-            // Echo the buffer back to the sender
-
-            i++;
+            printf("send failed with error: %d\n", WSAGetLastError());
+            closesocket(ClientSocket);
+            WSACleanup();
         }
-
-        // coordinates saved and ready to be returned
-        if (i == 2)
-            break;
+        printf("Bytes sent: %d\n", iSendResult);
     }
-
-    return arrToBeFilled;
 }
 
 // send command to robot
@@ -124,9 +97,8 @@ int sendCommand(char *sendbuf, SOCKET &ClientSocket)
 
 int __cdecl main(void)
 {
-    /*
 
-	//========== Robot Server ==========//
+    //========== Robot Server ==========//
     WSADATA wsaData;
     int iResult;
 
@@ -137,10 +109,11 @@ int __cdecl main(void)
     struct addrinfo hints;
 
     int recvbuflen = DEFAULT_BUFLEN;
-    
+
     // Initialize Winsock
-    iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-    if (iResult != 0) {
+    iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (iResult != 0)
+    {
         printf("WSAStartup failed with error: %d\n", iResult);
         return 1;
     }
@@ -153,7 +126,8 @@ int __cdecl main(void)
 
     // Resolve the server address and port
     iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-    if ( iResult != 0 ) {
+    if (iResult != 0)
+    {
         printf("getaddrinfo failed with error: %d\n", iResult);
         WSACleanup();
         return 1;
@@ -161,7 +135,8 @@ int __cdecl main(void)
 
     // Create a SOCKET for connecting to server
     ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-    if (ListenSocket == INVALID_SOCKET) {
+    if (ListenSocket == INVALID_SOCKET)
+    {
         printf("socket failed with error: %ld\n", WSAGetLastError());
         freeaddrinfo(result);
         WSACleanup();
@@ -169,8 +144,9 @@ int __cdecl main(void)
     }
 
     // Setup the TCP listening socket
-    iResult = bind( ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-    if (iResult == SOCKET_ERROR) {
+    iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+    if (iResult == SOCKET_ERROR)
+    {
         printf("bind failed with error: %d\n", WSAGetLastError());
         freeaddrinfo(result);
         closesocket(ListenSocket);
@@ -181,7 +157,8 @@ int __cdecl main(void)
     freeaddrinfo(result);
 
     iResult = listen(ListenSocket, SOMAXCONN);
-    if (iResult == SOCKET_ERROR) {
+    if (iResult == SOCKET_ERROR)
+    {
         printf("listen failed with error: %d\n", WSAGetLastError());
         closesocket(ListenSocket);
         WSACleanup();
@@ -190,7 +167,8 @@ int __cdecl main(void)
 
     // Accept a client socket
     ClientSocket = accept(ListenSocket, NULL, NULL);
-    if (ClientSocket == INVALID_SOCKET) {
+    if (ClientSocket == INVALID_SOCKET)
+    {
         printf("accept failed with error: %d\n", WSAGetLastError());
         closesocket(ListenSocket);
         WSACleanup();
@@ -199,8 +177,6 @@ int __cdecl main(void)
 
     // No longer need server socket
     closesocket(ListenSocket);
-
-	*/
 
     //========== Camera Server ==========//
 
@@ -285,8 +261,9 @@ int __cdecl main(void)
     // No longer need server socket
     closesocket(ListenSocket2);
 
-    //========== Add your code below ==========//
+    //========== Automated Calibration ==========//
 
+    // ensure high variance in all axes and visibility of ball
     // define world coordinates for calibration
     cv::Point3f Point1 = (300, 400, 20);
     cv::Point3f Point2 = (300, 400, 20);
@@ -295,16 +272,20 @@ int __cdecl main(void)
     // stack world coordinates to vector
     std::vector<cv::Point3f> world_coordinates;
     world_coordinates.stack(Point1);
-    //...
 
-    for (int c = 0; c < world_coordinates.size(); c++)
+    for (int c = 0; c < sizeof(world_coordinates); c++)
     {
-        coordinates = world_coordinates[c] char command[80];
-        sprintf(command, "MOVP %f %f %f", coordinates.x, coordinates.y, coordinates.z);
+        coordinates = world_coordinates[c];
+
+        char command[80];
+        // TODO: set gripper position to  catch position A B C
+        sprintf(command, "MOVP %f %f %f A B C", coordinates.x, coordinates.y, coordinates.z);
         sendCommand(command, ClientSocket);
-        cout << "Move to: " << x << " " << y << " " << z << endl;
-        // Sleep(5000);
-        sendMessage(coordinates, ClientSocket2)
+
+        Sleep(5000); // wait for robot to drive to position
+        cout << "Moved to: " << coordinates.x << " " << coordinates.y << " " << coordinates.z << endl;
+        sendMessage(coordinates, ClientSocket2);
+        Sleep(2500); // wait for camera to save ball position
     }
 
     //========== Camera Server ==========//
@@ -341,3 +322,31 @@ int __cdecl main(void)
 
     return 0;
 }
+
+/*
+
+// calibration approach with joint angles 
+
+float J1, J2, J3, J4, J5, J6;
+int J1_start, J1_end;
+int x, y, z;
+
+int N_points = 9;
+float J1_stepsize = (J1_end - J1_start) / N_points; // absolute difference?
+// TODO: initialize joints
+// J2 to J4 start in high position
+// J5 and J6 rotated relative to J1_start
+
+for (int c = 0; c < N_points; c++)
+{
+    char command[80];
+    sprintf(command, "MOVJ %f %f %f %f %f %f", J1, J2, J3, J4, J5, J6);
+    sendCommand(command, ClientSocket);
+
+    // TODO: how to get current position via GETX, GETY, GETZ
+    x = GETX;
+    y = GETY;
+    z = GETZ;
+    cout << "Moved to: " << x << " " << y << " " << z << endl;
+    cv::Point3f coordinates = (x, y, z);
+*/
