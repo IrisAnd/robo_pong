@@ -3,6 +3,7 @@
 import socket 
 import struct
 import time
+import cv2
 
 class TCPClient:
 
@@ -50,7 +51,8 @@ class TCPClient:
 
 def main():
     client = TCPClient()
-    DEFAULT_MESSAGE = [200.0, 400.0, 50.0]
+    DEFAULT_MESSAGE = [200.0, 400.0, 200.0]
+    input("wait for input")
     client.send_message(DEFAULT_MESSAGE)
 
 

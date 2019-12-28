@@ -12,6 +12,8 @@ import catching_point_calculation as cpc
 import pyrealsense2 as rs
 from TCPClient import TCPClient
 
+
+
 def main():
 
     # create new csv file to save results
@@ -24,7 +26,7 @@ def main():
     # writer.writerow(["time", "point"])
 
     # Open TCP connection to robot
-    client = TCPClient()
+   # client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
     #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
@@ -52,14 +54,6 @@ def main():
     # The "align_to" is the stream type to which we plan to align depth frames.
     align_to = rs.stream.color
     align = rs.align(align_to)
-        
-    # initialize variables for trajectory calculation
-    buffer_len = 30 #number of points that will be taken into account for trajectory calculation
-    pts = deque(maxlen=buffer_len)
-    camera_pts = deque(maxlen=buffer_len)
-    time_vec = deque(maxlen=buffer_len)
-    tic = time.time()
-    none_count = 0
 
     # Declare depth filters
     dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
@@ -70,9 +64,17 @@ def main():
     depth_to_disparity = rs.disparity_transform(True)
     disparity_to_depth = rs.disparity_transform(False)
 
+    # initialize variables for trajectory calculation
+    buffer_len = 30 #number of points that will be taken into account for trajectory calculation
+    pts = deque(maxlen=buffer_len)
+    camera_pts = deque(maxlen=buffer_len)
+    time_vec = deque(maxlen=buffer_len)
+    tic = time.time()
+    none_count = 0
+
     # loop for video
     while True:
-        
+        tic_frame = time.time()
         # Wait for frames from realsense
         frames = pipeline.wait_for_frames()
         # Align the depth frame to color frame
@@ -128,6 +130,9 @@ def main():
 
         else:
             none_count = none_count+1
+        #toc_frame = time.time()
+        #print("Detection_time: ",toc_frame-tic_frame)
+
 
         #if no points were detected for some time (10 frames), reset the point vector and polynomial calculation
         if none_count >10:
@@ -137,16 +142,16 @@ def main():
             none_count = 0
 
         # if more then x ball positions were detected, calculate the trajectory estimation
-        if(len(pts) > 5):
-
+        if(len(pts) > 7):
+            toce = time.time()
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
             catch_point = cpc.get_catching_point(params_x,params_y,params_z)
 
 
-            #TODO: Send catching point to robot
+            #Send catching point to robot
             if catch_point is not None:
-                client.send_message(np.round(catch_point,2))
+                #client.send_message(np.round(catch_point,2))
                 print("Processing time:",(time.time()-toce))
                 print("Sent point: ",np.round(catch_point,2))
 
@@ -155,7 +160,7 @@ def main():
             for point in future_points.transpose():
                 
                 camera_point = bte.transform_to_camera(point)
-                cv2.drawMarker(ball_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
+                cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
 
 
         # loop over the set of tracked points to draw the balls past movement
@@ -164,10 +169,10 @@ def main():
             # compute the thickness of the line and
             # draw the connecting lines
             thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-            cv2.line(ball_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
+            cv2.line(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
 
         # Display results
-        cv2.imshow("Result image", ball_image)
+        cv2.imshow("Result image", color_image)
         #out.write(ball_image)  # uncomment to save video
         key = cv2.waitKey(1) & 0xFF
 
@@ -177,7 +182,7 @@ def main():
 
     # close all windows
     cv2.destroyAllWindows()
-    client.close()
+    #client.close()
 
     
 

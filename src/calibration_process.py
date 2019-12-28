@@ -46,14 +46,10 @@ def grab_contours(cnts):
 #  [ 2.72670532, -0.68577947, -0.50570559],
 #  [-0.3261723,  -1.39798248,  0.5276124 ]])
 
-camera_matrix = np.array([[-2.27628685,  3.45648074,  0.1830783 ],
- [ 4.04500076, -1.36951856, -0.5396492 ],
- [-1.51393397, -0.93862703,  0.59329872]])
-
-camera_matrix = np.array([[-1.38537711e-01,  5.36769204e-01, -1.04725998e+00,  2.21072026e+03],
- [ 2.90797523e+00,  1.29089884e-01,  1.06705665e-01, -1.14894323e+03],
- [ 1.13721285e-01, -3.09858547e+00, -3.44271153e-01,  1.66794680e+03],
- [-9.75781955e-19, -3.25260652e-19,  1.08420217e-19,  1.00000000e+00]])
+camera_matrix = np.array([[ 1.17387918e-02,  9.06677568e-01, -8.19763438e-01,  1.61342946e+03],
+ [ 2.98177269e+00,  3.59008659e-01,  3.71671350e-02, -1.06108133e+03],
+ [ 1.62125309e-02, -2.82591617e+00, -2.35226662e-01,  1.48935144e+03],
+ [-8.67361738e-19,  8.40256684e-19, -1.08420217e-19,  1.00000000e+00]])
 
 print(camera_matrix)
 try:
@@ -140,7 +136,7 @@ try:
         #color_image = cv2.cvtColor(color_image, cv2.COLOR_RGB2BGR)
 
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-        
+
         # Remove background - Set pixels further than clipping_distance to grey
         # then we have reached the end of the video
         if color_image is None:
@@ -159,10 +155,10 @@ try:
             world_coordinate= np.dot(camera_matrix,np.array([calib_point[0], calib_point[1], depth,1]))
             print("World coordinate: ",world_coordinate)
 
-            cv2.circle(color_image, calib_point, 5, (0, 0, 255), -1)
+            cv2.circle(color_image, (calib_point[0], calib_point[1]), 5, (0, 0, 255), -1)
             
 
-            cv2.circle(depth_colormap, calib_point, 5, (0, 0, 255), -1)
+            #cv2.circle(depth_colormap, calib_point, 5, (0, 0, 255), -1)
         else:
             print("Point not in image")
         # cv2.imshow('depth Image', depth_image)
