@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#  
-import socket 
+
+import socket
 import struct
 import time
 import cv2
@@ -20,16 +20,15 @@ class TCPClient:
 
         self.BUFFER_SIZE = 4
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
+
         print('start connect ...')
         self.s.connect((self.TCP_IP, self.TCP_PORT))
-        print('connection successful.')
+        print('connection successful')
 
     def close(self):
         self.s.close()
 
-    
-    def send_message(self,MESSAGE):
+    def send_message(self, MESSAGE):
 
         # create list of bytes
         B_MESSAGE = []
@@ -40,14 +39,12 @@ class TCPClient:
         for byte_array in B_MESSAGE:
             self.s.send(byte_array)
 
-    # TODO: code that recieves robot coordinate as 3 point array
-    # def recieve_message(self):
-    #     data = "data"
-    #     while data is not None:
-    #         data = self.s.recv(self.BUFFER_SIZE)
-    #         print("received data:", repr(data))
-    #     return data
-        
+    # recieves and returns robot coordinate as 3 point byte array
+    def recieve_message(self):
+        data = self.s.recv(self.BUFFER_SIZE)
+        print("received data:", repr(data))
+        return data
+
 
 def main():
     client = TCPClient()
