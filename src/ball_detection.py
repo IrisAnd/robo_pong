@@ -46,10 +46,10 @@ def detect_ball(work_image):
     # list of tracked points
 
     #HSV
-   # orangeLower = (10, 170, 70)
-   # orangeUpper = (20, 255, 255)
-    orangeLower = (30, 100, 100)
-    orangeUpper = (50, 255, 255)
+    #orangeLower = (10, 170, 70)
+    #orangeUpper = (20, 255, 255)
+    orangeLower = (30, 100, 100) #green
+    orangeUpper = (50, 255, 255) #green
 
     #cv2.imshow('frame', frame)
     # blur it, and convert it to the HSV
