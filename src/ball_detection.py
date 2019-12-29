@@ -86,7 +86,7 @@ def detect_ball(work_image):
     # if center != None and check_image_boundaries(work_image, center):
     #     center_numpy = [center[0],center[1]]
 
-    return center,radius
+    return [center[0],center[1]],radius
 
 
 #to up frame-rate, after first recognition of ball try to find it 
