@@ -82,8 +82,8 @@ def detect_ball(color_image):
     # ball in the HSV color space, then initialize the
     # list of tracked points
     #HSV
-    orangeLower = (10, 170, 70)
-    orangeUpper = (20, 255, 255)
+    orangeLower = (0, 170, 70)
+    orangeUpper = (15, 255, 255)
 
 
     #cv2.imshow('frame', frame)
