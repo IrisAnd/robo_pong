@@ -9,7 +9,7 @@ def get_intersection_time(params_x,params_y,params_z):
     #T_mat_poly = np.array([t*t,t,1]).transpose()
     #T_mat_lin = np.array([t,1]).transpose()
 
-    equation = (np.dot(params_x[0], t**2) + np.dot(params_x[1], t)+params_x[1])**2 +(np.dot(params_y[0],t) +  + params_y[2])**2 + (np.dot(params_z[0], t) + params_z[1])**2 - r_out**2
+    equation = (np.dot(params_x[0], t) + params_x[1])**2 +(np.dot(params_y[0],t) +  + params_y[1])**2 + (np.dot(params_z[0], t**2)+np.dot(params_z[1],t) + params_z[2])**2 - r_out**2
     t = solve(equation ,t)
 
     #delete complex numbers
@@ -34,9 +34,9 @@ def calc_catching_point(params_x, params_y, params_z, t):
     T_mat_poly = np.array([t*t,t,1]).transpose()
     
     T_mat_lin = np.array([t,1]).transpose()
-    x = np.dot(params_x, T_mat_poly)
-    y = np.dot(params_z, T_mat_lin)  # this could be wrong and should be changed
-    z = np.dot(params_y, T_mat_lin) # this could be wrong and should be changed
+    x = np.dot(params_x, T_mat_lin)
+    y = np.dot(params_y, T_mat_lin)  # this could be wrong and should be changed
+    z = np.dot(params_z, T_mat_poly) # this could be wrong and should be changed
 
     return (x,y,z)
 
@@ -56,8 +56,9 @@ def get_catching_point(params_x,params_y,params_z):
     print("t: ", t)
     if t is not None:
         catch_point=calc_catching_point(params_x,params_y,params_z,t)
-        print("catch point: ", catch_point)
+        
         if check_boundaries(catch_point):
+            print("catch point: ", catch_point)
             return catch_point
     else:
         print("No valid catching point found")

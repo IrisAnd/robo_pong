@@ -11,8 +11,25 @@ import ball_detection as bd
 import catching_point_calculation as cpc
 import pyrealsense2 as rs
 from TCPClient import TCPClient
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
+
+def visualization(xs,ys,zs,xs_pred, ys_pred, zs_pred,cp):
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(xs, ys, zs, s= 30, label = "real")
+    ax.plot(xs_pred, ys_pred, zs_pred, label = "pred")
+    ax.scatter(cp[0],cp[1],cp[2],s= 30, label = "catch_point")
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    ax.legend()
+    plt.savefig("Result.png", dpi = 150, bbox_inches = 'tight')
+    fig.show()
+    input("Press key to close")
 
 def main():
 
@@ -29,7 +46,7 @@ def main():
    # client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -70,11 +87,15 @@ def main():
     camera_pts = deque(maxlen=buffer_len)
     time_vec = deque(maxlen=buffer_len)
     tic = time.time()
+    tic_frame = None
     none_count = 0
+
+    preditcion_store = []
+    points_store = []
+    catch_point = []
 
     # loop for video
     while True:
-        tic_frame = time.time()
         # Wait for frames from realsense
         frames = pipeline.wait_for_frames()
         # Align the depth frame to color frame
@@ -112,13 +133,15 @@ def main():
             
             #get depth from depth_image and append to center, append the current center to the points list
             depth = depth_image[center[1],center[0]]
-
+            if not tic_frame:
+                tic_frame = time.time()
             center.append(depth)
             camera_pts.append(center)
 
             # Transform point from camera coordinates to robot coordinate frame
             center_world = bte.transform_to_world(center)
             pts.append(center_world)
+            points_store.append(center_world)
 
             #append current time to time vector
             toc = time.time()
@@ -158,11 +181,14 @@ def main():
                 cv2.drawMarker(color_image, tuple(catch_point_camera.astype(int)[:2]), (0, 255, 0) ,cv2.MARKER_CROSS,10)
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
-            future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
+            print("Tic frame: ", tic_frame)
+            print("Time now: ", time.time)
+            future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),1)
+            
             for point in future_points.transpose():
-                
-                camera_point = bte.transform_to_camera(point)
-                cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,5)
+                preditcion_store.append(point)
+                #camera_point = bte.transform_to_camera(point)
+                #cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,5)
 
 
             # loop over the set of tracked points to draw the balls past movement
@@ -172,19 +198,27 @@ def main():
                 # draw the connecting lines
                 thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
                 cv2.line(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
-
+            break
         
         # Display results
         cv2.imshow("Result image", color_image)
-        #out.write(ball_image)  # uncomment to save video
+        out.write(color_image)  # uncomment to save video
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):
             break
-
+    del points_store[0]    
+    points_store = np.asarray(points_store)
+    preditcion_store = np.asarray(preditcion_store)
+    print("points: ", points_store)
+    print('first: ', points_store[:,0])
+    print('prediction: ',preditcion_store)
+    
+    visualization(points_store[:,0],points_store[:,1],points_store[:,2],preditcion_store[:,0],preditcion_store[:,1] , preditcion_store[:,2],catch_point)
     # close all windows
     cv2.destroyAllWindows()
+   
     #client.close()
 
     

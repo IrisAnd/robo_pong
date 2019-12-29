@@ -67,9 +67,9 @@ def estimate_trajectory(first_points, time):
     #T_mat_y_inv = np.linalg.pinv(T_mat_y)
 
 
-    params_x = first_points[:,0].dot(T_mat_poly_inv)
+    params_x = first_points[:,0].dot(T_mat_lin_inv)
     params_y = first_points[:,1].dot(T_mat_lin_inv)
-    params_z = first_points[:,2].dot(T_mat_lin_inv)
+    params_z = first_points[:,2].dot(T_mat_poly_inv)
 
     return params_x,params_y,params_z
 
@@ -81,10 +81,10 @@ def get_future_points_2D(params_x,params_y,tic,time_now,time_diff):
     return np.vstack((x,y))
 
 def get_future_points_3D(params_x,params_y,params_z,tic,time_now,time_diff):
-    times = np.arange(time_now-tic, time_now-tic+time_diff, 0.01)
+    times = np.arange(time_now-tic-time_diff/2, time_now-tic+time_diff, 0.01)
     #print(times)
-    x = params_x[0]*times*times+params_x[1]*times+params_y[2]
+    x = params_x[0]*times+params_x[1]
     y = params_y[0]*times+params_y[1]
-    z = params_z[0]*times+params_z[1]
+    z = params_z[0]*times*times+params_z[1]*times+params_z[2]
     return np.vstack((x,y,z))
 
