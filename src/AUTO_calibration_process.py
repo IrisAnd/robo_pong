@@ -42,24 +42,7 @@ def grab_contours(cnts):
     return cnts
 
 
-def getBallPositionXYD():
-
-    # Create a pipeline
-    pipeline = rs.pipeline()
-
-    # Create a config and configure the pipeline to stream
-    #  different resolutions of color and depth streams
-    config = rs.config()
-    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
-
-    # Start streaming
-    profile = pipeline.start(config)
-
-    # Getting the depth sensor's depth scale (see rs-align example for explanation)
-    depth_sensor = profile.get_device().first_depth_sensor()
-    depth_scale = depth_sensor.get_depth_scale()
-    print("Depth Scale is: ", depth_scale)
+def getBallPositionXYD(pipeline):
 
     # Declare depth filters
     # dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
@@ -80,8 +63,9 @@ def getBallPositionXYD():
     camera_coordinate = np.zeros(3)
 
     # Streaming loop
+    i = 0 
     try:
-        while True:
+        while i < 5:
             # Get frameset of color and depth
             frames = pipeline.wait_for_frames()
             # frames.get_depth_frame() is a 640x360 depth image
@@ -151,6 +135,7 @@ def getBallPositionXYD():
 
             # show the color_image to our screen
             cv2.imshow("color_image", color_image)
+            i+=1
 
     finally:
         pipeline.stop()
