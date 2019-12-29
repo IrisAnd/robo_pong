@@ -5,7 +5,7 @@ from sympy import Symbol
 
 def get_intersection_time(params_x,params_y,params_z):
     t = Symbol('t')
-    r_out = 500
+    r_out = 600
     T_mat_poly = np.array([t*t,t,1]).transpose()
     T_mat_lin = np.array([t,1]).transpose()
 
@@ -53,10 +53,10 @@ def check_boundaries(point):
 def get_catching_point(params_x,params_y,params_z):
 
     t = get_intersection_time(params_x,params_y,params_z)
+    print("t: ", t)
     if t is not None:
-
         catch_point=calc_catching_point(params_x,params_y,params_z,t)
-        #print("catch point: ", catch_point)
+        print("catch point: ", catch_point)
         if check_boundaries(catch_point):
             return catch_point
     else:
