@@ -24,6 +24,23 @@ def visualization(xs,ys,zs,xs_pred, ys_pred, zs_pred,cp):
     ax.plot(xs_pred, ys_pred, zs_pred, label = "pred")
     if cp:
         ax.scatter(cp[0],cp[1],cp[2],s= 30, label = "catch_point")
+
+    # Draw sphere
+    r = 550 #radius
+    q = 2
+    p = 0.5
+    u, v = np.mgrid[0:q*np.pi:20j,0:p*np.pi:10j]
+    x = r * np.cos(u) * np.sin(v)
+    y = r * np.sin(u) * np.sin(v)
+    z = r * np.cos(v)
+    ax.plot_wireframe(x, y, z, color = "grey")
+    ax.scatter([0],[0],[0],s= 30, label = "Robot Base")
+
+    ax.set_xlim(-100,3000)
+    ax.set_ylim(-1000,1000)
+    ax.set_zlim(0,1000)
+
+
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
@@ -44,10 +61,10 @@ def main():
     # writer.writerow(["time", "point"])
 
     # Open TCP connection to robot
-   # client = TCPClient()
+    #client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -150,7 +167,7 @@ def main():
 
             #write the time and detected point to csv output file
             #writer.writerow([toc, center_world]) # TODO this center should be in robot coordinates
-            #client.send_message(np.round(center_world,2).tolist())
+            
 
         else:
             none_count = none_count+1
@@ -201,11 +218,11 @@ def main():
                 thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
                 #cv2.drawMarker(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), cv2.MARKER_CROSS,5)
                 cv2.drawMarker(color_image, (camera_pts[i][0],camera_pts[i][1]), (0, 0, 255), cv2.MARKER_CROSS,10)
-            break
         
+            break
         # Display results
         cv2.imshow("Result image", color_image)
-        #out.write(color_image)  # uncomment to save video
+        out.write(color_image)  # uncomment to save video
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
@@ -226,7 +243,7 @@ def main():
     # close all windows
     cv2.destroyAllWindows()
    
-    #client.close()
+   # client.close()
 
     
 

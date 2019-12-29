@@ -63,7 +63,7 @@ def getBallPositionXYD(pipeline):
     camera_coordinate = np.zeros(3)
 
     # Streaming loop
-    i = 0 
+    i = 0
     try:
         while i < 5:
             # Get frameset of color and depth
@@ -94,9 +94,6 @@ def getBallPositionXYD(pipeline):
             depth_image = np.asanyarray(aligned_depth_frame.get_data())
             color_image = np.asanyarray(color_frame.get_data())
 
-            print(depth_image.shape)
-            print(color_image.shape)
-
             # Remove background - Set pixels further than clipping_distance to grey
             # then we have reached the end of the video
             if color_image is None:
@@ -104,41 +101,47 @@ def getBallPositionXYD(pipeline):
                 break
 
             calib_point, radius = detect_ball(color_image)
+            if calib_point:
+                if calib_point[1] <= depth_image.shape[0] and calib_point[0] <= depth_image.shape[1]:
 
-            if calib_point[1] <= depth_image.shape[0] and calib_point[0] <= depth_image.shape[1]:
+                    depth = depth_image[calib_point[1], calib_point[0]]
+                    camera_coordinate = [calib_point[0], calib_point[1], depth]
+                    print("depth: " + str(depth))
+                    print("Camera coordinate: ", camera_coordinate)
 
-                depth = depth_image[calib_point[1], calib_point[0]]
-                camera_coordinate = [calib_point[0], calib_point[1], depth]
-                print("depth: " + str(depth))
-                print(camera_coordinate)
+                else:
+                    print("Point not in image")
 
+                cv2.circle(
+                    color_image, (int(calib_point[0]), int(
+                        calib_point[1])), 5, (0, 0, 255), -1)
+                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
+                    depth_image, alpha=0.3), cv2.COLORMAP_JET)
+
+                cv2.circle(
+                    depth_colormap, (int(calib_point[0]), int(
+                        calib_point[1])), 5, (0, 0, 255), -1)
+                images = np.hstack((color_image, depth_colormap))
+                cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
+                cv2.imshow('Align Example', images)
+                cv2.imshow('Depth Image', depth_image)
+
+                # only proceed if the radius meets a minimum size
+                if radius > 10:
+                    # draw the circle and centroid on the color_image,
+                    # then update the list of tracked points
+                    cv2.circle(color_image, (int(calib_point[0]), int(
+                        calib_point[1])), int(radius), (0, 255, 255), 2)
+                    cv2.circle(color_image, (int(calib_point[0]), int(
+                        calib_point[1])), 5, (0, 0, 255), -1)
             else:
-                print("Point not in image")
-
-            cv2.circle(color_image, calib_point, 5, (0, 0, 255), -1)
-            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
-                depth_image, alpha=0.3), cv2.COLORMAP_JET)
-
-            cv2.circle(depth_colormap, calib_point, 5, (0, 0, 255), -1)
-            images = np.hstack((color_image, depth_colormap))
-            cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
-            cv2.imshow('Align Example', images)
-            cv2.imshow('Depth Image', depth_image)
-
-            # only proceed if the radius meets a minimum size
-            if radius > 10:
-                # draw the circle and centroid on the color_image,
-                # then update the list of tracked points
-                cv2.circle(color_image, (int(calib_point[0]), int(
-                    calib_point[1])), int(radius), (0, 255, 255), 2)
-                cv2.circle(color_image, calib_point, 5, (0, 0, 255), -1)
+                print("No calib point found")
 
             # show the color_image to our screen
             cv2.imshow("color_image", color_image)
-            i+=1
+            i += 1
 
     finally:
         pipeline.stop()
 
     return camera_coordinate
-    

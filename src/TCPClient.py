@@ -5,12 +5,13 @@ import struct
 import time
 import cv2
 
+
 class TCPClient:
 
     def __init__(self):
         # specify server IP
-        # self.TCP_IP ='192.168.1.1'
-        self.TCP_IP = '10.38.236.84'           # ITRI PC: WLAN receiver IP
+        self.TCP_IP = '192.168.1.1'
+        # self.TCP_IP = '10.38.236.84'           # ITRI PC: WLAN receiver IP
         # TCP_IP = '10.38.197.195'          # Jakobs wlan ip
         # TCP_IP = '127.0.0.1'              # Standard loopback interface address (localhost)
 

@@ -35,7 +35,7 @@ waiting_for_points = True
 # wait for N_points robot points
 while waiting_for_points:
     data = client.recieve_message()
-    
+
     print("Length of data", len(data))
 
     # if data not empty
@@ -51,7 +51,7 @@ while waiting_for_points:
         j = 1
         # wait for 3 robot coordinates (X,Y,Z)
         while waiting_for_coordinates:
-            
+
             data = client.recieve_message()
             if len(data) > 0:
                 coordinates[j] = struct.unpack('f', data)[0]
@@ -87,12 +87,14 @@ with open('camera_coordinates_{}.txt'.format(timestr), 'w') as f:
 
 # Robo Calibration points
 np_robo_cali_points = np.array(Robo_list)
-arm_cord = np.column_stack((np_robo_cali_points[:, 0:3], np.ones(np_robo_cali_points.shape[0]).T)).T
+arm_cord = np.column_stack(
+    (np_robo_cali_points[:, 0:3], np.ones(np_robo_cali_points.shape[0]).T)).T
 print(arm_cord)
 
 # Cam Calibration points
 np_cam_cali_points = np.array(Cam_list)
-cam_cord = np.column_stack((np_cam_cali_points[:, 0:3], np.ones(np_cam_cali_points.shape[0]).T)).T
+cam_cord = np.column_stack(
+    (np_cam_cali_points[:, 0:3], np.ones(np_cam_cali_points.shape[0]).T)).T
 print(cam_cord)
 
 # Compute Transformation matrices

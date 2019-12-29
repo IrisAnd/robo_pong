@@ -64,7 +64,7 @@ filehandle = open('calibration.txt', 'a')
 # ball in the HSV color space, then initialize the
 # list of tracked points
 #HSV
-orangeLower = (10, 170, 70)
+orangeLower = (10, 170, 120)
 orangeUpper = (20, 255, 255)
 
 # Create a pipeline

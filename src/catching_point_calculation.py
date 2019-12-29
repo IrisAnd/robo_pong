@@ -6,7 +6,7 @@ from sympy import Symbol
 
 def get_intersection_time(params_x, params_y, params_z):
     t = Symbol('t')
-    r_out = 500
+    r_out = 550
     #T_mat_poly = np.array([t*t,t,1]).transpose()
     #T_mat_lin = np.array([t,1]).transpose()
 
@@ -49,7 +49,7 @@ def calc_catching_point(params_x, params_y, params_z, t):
 def check_boundaries(point):
     # check that x < 0 and z >0
     #print('point: ' + str(point))
-    if point[0] > 250 and point[2] > 0:
+    if point[0] > 200 and point[2] > 0:
         #print('point: ' + str(point))
         return True
     else:

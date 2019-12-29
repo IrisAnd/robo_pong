@@ -46,10 +46,10 @@ def detect_ball(work_image):
     # list of tracked points
 
     # HSV
-    orangeLower = (12, 170, 120)
-    orangeUpper = (20, 255, 255)
-    # orangeLower = (30, 100, 100) #green
-    # orangeUpper = (50, 255, 255) #green
+    orangeLower = (10, 120, 70)
+    orangeUpper = (25, 255, 255)
+    # orangeLower = (30, 100, 100)  # green
+    # orangeUpper = (50, 255, 255)  # green
 
     #cv2.imshow('frame', frame)
     # blur it, and convert it to the HSV
@@ -61,10 +61,12 @@ def detect_ball(work_image):
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
     mask = cv2.inRange(hsv, orangeLower, orangeUpper)
+    cv2.imshow('mask', mask)
     # higher number of iterations reduces fps a lot!
     mask = cv2.erode(mask, None, iterations=1)
     mask = cv2.dilate(mask, None, iterations=1)
-
+    #cv2.imwrite('maskerode'+str(time.time)+'.png', mask)
+    cv2.imshow('maskerode', mask)
     # find contours in the mask and initialize the current
     # (x, y) center of the ball
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
