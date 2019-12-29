@@ -45,11 +45,11 @@ def detect_ball(work_image):
     # ball in the HSV color space, then initialize the
     # list of tracked points
 
-    #HSV
-    #orangeLower = (10, 170, 70)
-    #orangeUpper = (20, 255, 255)
-    orangeLower = (30, 100, 100) #green
-    orangeUpper = (50, 255, 255) #green
+    # HSV
+    orangeLower = (12, 170, 120)
+    orangeUpper = (20, 255, 255)
+    # orangeLower = (30, 100, 100) #green
+    # orangeUpper = (50, 255, 255) #green
 
     #cv2.imshow('frame', frame)
     # blur it, and convert it to the HSV
@@ -89,9 +89,9 @@ def detect_ball(work_image):
     #     center_numpy = [center[0],center[1]]
 
     if center is not None:
-        return [center[0],center[1]],radius
+        return [center[0], center[1]], radius
     else:
-        return None,None
+        return None, None
 
 
 # to up frame-rate, after first recognition of ball try to find it

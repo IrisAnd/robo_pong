@@ -22,7 +22,8 @@ def visualization(xs,ys,zs,xs_pred, ys_pred, zs_pred,cp):
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter(xs, ys, zs, s= 30, label = "real")
     ax.plot(xs_pred, ys_pred, zs_pred, label = "pred")
-    ax.scatter(cp[0],cp[1],cp[2],s= 30, label = "catch_point")
+    if cp:
+        ax.scatter(cp[0],cp[1],cp[2],s= 30, label = "catch_point")
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
@@ -46,7 +47,7 @@ def main():
    # client = TCPClient()
     
     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
+    #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -165,7 +166,7 @@ def main():
             none_count = 0
 
         # if more then x ball positions were detected, calculate the trajectory estimation
-        if(len(pts) > 10):
+        if(len(pts) > 7):
             toce = time.time()
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
@@ -183,34 +184,40 @@ def main():
             # calculate future points for ball from the estimated polynomial parameters and draw them
             print("Tic frame: ", tic_frame)
             print("Time now: ", time.time)
-            future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),1)
+            future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),2)
             
             for point in future_points.transpose():
                 preditcion_store.append(point)
-                #camera_point = bte.transform_to_camera(point)
-                #cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,5)
+                camera_point = bte.transform_to_camera(point)
+                cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,5)
 
 
             # loop over the set of tracked points to draw the balls past movement
+            print("cam points: ", camera_pts)
             for i in range(1, len(camera_pts)):
 
                 # compute the thickness of the line and
                 # draw the connecting lines
                 thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-                cv2.line(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
+                #cv2.drawMarker(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), cv2.MARKER_CROSS,5)
+                cv2.drawMarker(color_image, (camera_pts[i][0],camera_pts[i][1]), (0, 0, 255), cv2.MARKER_CROSS,10)
             break
         
         # Display results
         cv2.imshow("Result image", color_image)
-        out.write(color_image)  # uncomment to save video
+        #out.write(color_image)  # uncomment to save video
         key = cv2.waitKey(1) & 0xFF
 
         # if the 'q' key is pressed, stop the loop
         if key == ord("q"):
             break
+
+    cv2.imshow("Result image", color_image)
+
     del points_store[0]    
     points_store = np.asarray(points_store)
     preditcion_store = np.asarray(preditcion_store)
+    print("Catching point: ", catch_point)
     print("points: ", points_store)
     print('first: ', points_store[:,0])
     print('prediction: ',preditcion_store)
