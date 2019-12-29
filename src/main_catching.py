@@ -142,7 +142,7 @@ def main():
             none_count = 0
 
         # if more then x ball positions were detected, calculate the trajectory estimation
-        if(len(pts) > 7):
+        if(len(pts) > 10):
             toce = time.time()
             params_x,params_y,params_z = bte.estimate_trajectory(np.asarray(pts), np.asarray(time_vec))
 
@@ -154,23 +154,26 @@ def main():
                 #client.send_message(np.round(catch_point,2))
                 print("Processing time:",(time.time()-toce))
                 print("Sent point: ",np.round(catch_point,2))
+                catch_point_camera = bte.transform_to_camera(catch_point)
+                cv2.drawMarker(color_image, tuple(catch_point_camera.astype(int)[:2]), (0, 255, 0) ,cv2.MARKER_CROSS,10)
 
             # calculate future points for ball from the estimated polynomial parameters and draw them
             future_points = bte.get_future_points_3D(params_x,params_y,params_z,tic,time.time(),5)
             for point in future_points.transpose():
                 
                 camera_point = bte.transform_to_camera(point)
-                cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,10)
+                cv2.drawMarker(color_image, tuple(camera_point.astype(int)[:2]), (255, 0, 0) ,cv2.MARKER_CROSS,5)
 
 
-        # loop over the set of tracked points to draw the balls past movement
-        for i in range(1, len(camera_pts)):
+            # loop over the set of tracked points to draw the balls past movement
+            for i in range(1, len(camera_pts)):
 
-            # compute the thickness of the line and
-            # draw the connecting lines
-            thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-            cv2.line(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
+                # compute the thickness of the line and
+                # draw the connecting lines
+                thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
+                cv2.line(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), thickness)
 
+        
         # Display results
         cv2.imshow("Result image", color_image)
         #out.write(ball_image)  # uncomment to save video
