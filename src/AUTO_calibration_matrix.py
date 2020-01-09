@@ -5,31 +5,19 @@ import AUTO_calibration_process
 import time
 import pyrealsense2 as rs
 
-# Create a pipeline for camera
-pipeline = rs.pipeline()
+# '''
 
-# Create a config and configure the pipeline to stream
-#  different resolutions of color and depth streams
-config = rs.config()
-config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
-# Start streaming
-profile = pipeline.start(config)
-
-# Getting the depth sensor's depth scale (see rs-align example for explanation)
-depth_sensor = profile.get_device().first_depth_sensor()
-depth_scale = depth_sensor.get_depth_scale()
-print("Depth Scale is: ", depth_scale)
+# '''
 
 # connect with ITRI PC
 client = TCPClient.TCPClient()
 
-N_points = 20
+N_points = 22
 Robo_list = []
 Cam_list = []
 
-i = 1   # counts points (0, 1, ..., N_points)
+i = 0   # counts points (0, 1, ..., N_points)
 waiting_for_points = True
 
 # wait for N_points robot points
@@ -64,8 +52,8 @@ while waiting_for_points:
                 waiting_for_coordinates = False
 
         Robo_list.append(coordinates)
-        print("Got point "+str(i)+" : "+str(coordinates))
-        Cam_list.append(AUTO_calibration_process.getBallPositionXYD(pipeline))
+        print("Got point "+str(i+1)+" : "+str(coordinates))
+        Cam_list.append(AUTO_calibration_process.getBallPositionXYD())
 
         i += 1    # one less robot point left
 
@@ -84,6 +72,8 @@ with open('robot_coordinates_{}.txt'.format(timestr), 'w') as f:
 with open('camera_coordinates_{}.txt'.format(timestr), 'w') as f:
     for coordinate in Cam_list:
         f.write("%s\n" % coordinate)
+
+'''
 
 # Robo Calibration points
 np_robo_cali_points = np.array(Robo_list)
@@ -142,3 +132,5 @@ for ind, pt in enumerate(np_robo_cali_points):
 with open('inv_trafo_matrix_{}.txt'.format(timestr), 'w') as f:
     for row in image_to_arm.tolist():
         f.write("%s\n" % coordinate)
+
+'''

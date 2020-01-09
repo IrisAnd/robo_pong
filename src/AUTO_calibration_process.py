@@ -42,7 +42,24 @@ def grab_contours(cnts):
     return cnts
 
 
-def getBallPositionXYD(pipeline):
+def getBallPositionXYD():
+
+    # Create a pipeline for camera
+    pipeline = rs.pipeline()
+
+    # Create a config and configure the pipeline to stream
+    #  different resolutions of color and depth streams
+    config = rs.config()
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
+    # Start streaming
+    profile = pipeline.start(config)
+
+    # Getting the depth sensor's depth scale (see rs-align example for explanation)
+    depth_sensor = profile.get_device().first_depth_sensor()
+    depth_scale = depth_sensor.get_depth_scale()
+    print("Depth Scale is: ", depth_scale)
 
     # Declare depth filters
     # dec_filter = rs.decimation_filter()  # Decimation - reduces depth frame density
@@ -107,24 +124,24 @@ def getBallPositionXYD(pipeline):
                     depth = depth_image[calib_point[1], calib_point[0]]
                     camera_coordinate = [calib_point[0], calib_point[1], depth]
                     print("depth: " + str(depth))
-                    print("Camera coordinate: ", camera_coordinate)
+                    # print("Camera coordinate: ", camera_coordinate)
 
                 else:
                     print("Point not in image")
 
-                cv2.circle(
-                    color_image, (int(calib_point[0]), int(
-                        calib_point[1])), 5, (0, 0, 255), -1)
-                depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
-                    depth_image, alpha=0.3), cv2.COLORMAP_JET)
+                # cv2.circle(
+                #     color_image, (int(calib_point[0]), int(
+                #         calib_point[1])), 5, (0, 0, 255), -1)
+                # depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(
+                #     depth_image, alpha=0.3), cv2.COLORMAP_JET)
 
-                cv2.circle(
-                    depth_colormap, (int(calib_point[0]), int(
-                        calib_point[1])), 5, (0, 0, 255), -1)
-                images = np.hstack((color_image, depth_colormap))
-                cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
-                cv2.imshow('Align Example', images)
-                cv2.imshow('Depth Image', depth_image)
+                # cv2.circle(
+                #     depth_colormap, (int(calib_point[0]), int(
+                #         calib_point[1])), 5, (0, 0, 255), -1)
+                # images = np.hstack((color_image, depth_colormap))
+                # cv2.namedWindow('Align Example', cv2.WINDOW_AUTOSIZE)
+                # cv2.imshow('Align Example', images)
+                # cv2.imshow('Depth Image', depth_image)
 
                 # only proceed if the radius meets a minimum size
                 if radius > 10:
