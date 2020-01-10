@@ -283,7 +283,6 @@ int __cdecl main(void)
 	//========== Add your code below ==========//
 	
 	// 1. Read the int array with coordinates sent by remote laptop
-	// for clarification see https://stackoverflow.com/questions/3473438/return-array-in-a-function
 
 	int x, y, z;
 	int arrToBeFilled[3];

@@ -1,3 +1,13 @@
+// Automated Calibration: robot control
+// Algorithm:
+// 1) Launch "Robot" Server to connect with robot RAS as client
+// 2) Launch "Camera" Server to connect with camera laptop as client
+// 3) Repeat:
+//      Move robot to desired coordinates
+//      Send coordinates to camera client, wait for response
+// IMPORTANT NOTE: coordiantes between client and server are send in byte arrays:
+// 1 point with float 3 coordinates => 3 x byte[4] arrays
+
 #undef UNICODE
 
 #define WIN32_LEAN_AND_MEAN
@@ -35,6 +45,7 @@ void sendMessage(cv::Point3f Point, SOCKET &ClientSocket)
     coordinates[2] = Point.z;
     char bytes_temp[4];
 
+    // send robot coordinates
     for (int c = 0; c < 3; c++)
     {
         memcpy(bytes_temp, (unsigned char *)(&coordinates[c]), 4);
@@ -47,6 +58,33 @@ void sendMessage(cv::Point3f Point, SOCKET &ClientSocket)
             WSACleanup();
         }
         printf("Bytes sent: %d\n", iSendResult);
+    }
+
+    // wait for camera coordinates
+    int iResult2;
+    char recvbuf2[BUFLEN];
+    int recvbuflen2 = BUFLEN;
+    int arrToBeFilled[3];
+    int index = 0;
+
+    while (1)
+    {
+        iResult2 = recv(ClientSocket, recvbuf2, recvbuflen2, 0);
+        if (iResult2 > 0)
+        {
+            int arrLen = sizeof(arrToBeFilled);
+            for (int i = 0; i < arrLen; ++i)
+            {
+                arrToBeFilled[i] = recvbuf2[i];
+                cout << intArray[i] << endl;
+            }
+            index++;
+        }
+        // terminate loop if all 3 camera coordinates arrived
+        if (iResult2 == 3)
+        {
+            break;
+        }
     }
 }
 
@@ -98,8 +136,10 @@ int sendCommand(char *sendbuf, SOCKET &ClientSocket)
 
 int __cdecl main(void)
 {
-
+    //===================================//
     //========== Robot Server ==========//
+    //===================================//
+    // 1) Launch "Robot" Server to connect with robot RAS as client
     WSADATA wsaData;
     int iResult;
 
@@ -179,7 +219,10 @@ int __cdecl main(void)
     // No longer need server socket
     closesocket(ListenSocket);
 
+    //===================================//
     //========== Camera Server ==========//
+    //===================================//
+    // 2) Launch "Camera" Server to connect with camera laptop as client
 
     WSADATA wsaData2;
 
@@ -261,11 +304,15 @@ int __cdecl main(void)
 
     // No longer need server socket
     closesocket(ListenSocket2);
-
+    //===========================================//
     //========== Automated Calibration ==========//
+    //===========================================//
+    // 3) Repeat:
+    //      Move robot to desired coordinates
+    //      Send coordinates to camera client, wait for response
 
-    // ensure high variance in all axes and visibility of ball
     // define world coordinates for calibration
+    // ensure high variance in all axes and visibility of ball
     cv::Point3f Point1 = (-0.01, 251.14, 208.73);
     cv::Point3f Point2 = (26.83, 188.36, 473.59);
     cv::Point3f Point3 = (71.17, 526.10, 18.00);
@@ -321,18 +368,20 @@ int __cdecl main(void)
         coordinates = world_coordinates[c];
 
         char command[80];
-        // TODO: set gripper position to  catch position A B C
         sprintf(command, "MOVP %f %f %f 0 -60 180", coordinates.x, coordinates.y, coordinates.z);
         sendCommand(command, ClientSocket);
 
-        Sleep(5000); // wait for robot to drive to position
+        Sleep(10000); // wait for robot to drive to position
         cout << "Moved to: " << coordinates.x << " " << coordinates.y << " " << coordinates.z << endl;
-        sendMessage(coordinates, ClientSocket2);
-        Sleep(2500); // wait for camera to save ball position
-    }
 
+        // send coordiantes to camera client
+        sendMessage(coordinates, ClientSocket2);
+    }
+    //===================================//
     //========== Camera Server ==========//
-    // shutdown the connection since we're done
+    //===================================//
+
+    // shutdown the camera server connection since we're done
     int iResult = shutdown(ClientSocket2, SD_SEND);
     if (iResult == SOCKET_ERROR)
     {
@@ -345,7 +394,6 @@ int __cdecl main(void)
     // cleanup
     closesocket(ClientSocket2);
     WSACleanup();
-    //=======================================//
 
     system("pause");
 
