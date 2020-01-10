@@ -30,8 +30,6 @@ def grab_contours(cnts):
     return cnts
 
 # check if a point lies within the image borders
-
-
 def check_image_boundaries(image, point):
     if point[0] >= image.shape[0] or point[1] >= image.shape[1]:
         return False
@@ -48,16 +46,13 @@ def detect_ball(work_image):
     # HSV
     orangeLower = (10, 120, 70)
     orangeUpper = (25, 255, 255)
-    # orangeLower = (30, 100, 100)  # green
-    # orangeUpper = (50, 255, 255)  # green
+ 
 
-    #cv2.imshow('frame', frame)
-    # blur it, and convert it to the HSV
-    # color space
-    #blurred = cv2.GaussianBlur(work_image, (11, 11), 0)
+    
+    # bconvert picture to the HSV color space
     hsv = cv2.cvtColor(work_image, cv2.COLOR_BGR2HSV)
 
-    # construct a mask for the color "green", then perform
+    # construct a mask for the color, then perform
     # a series of dilations and erosions to remove any small
     # blobs left in the mask
     mask = cv2.inRange(hsv, orangeLower, orangeUpper)
@@ -65,8 +60,7 @@ def detect_ball(work_image):
     # higher number of iterations reduces fps a lot!
     mask = cv2.erode(mask, None, iterations=1)
     mask = cv2.dilate(mask, None, iterations=1)
-    #cv2.imwrite('maskerode'+str(time.time)+'.png', mask)
-    cv2.imshow('maskerode', mask)
+    
     # find contours in the mask and initialize the current
     # (x, y) center of the ball
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
@@ -85,37 +79,7 @@ def detect_ball(work_image):
         M = cv2.moments(c)
         center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-    # # If found center fullfills the requirements, return it as numpy array
-    # center_numpy = None
-    # if center != None and check_image_boundaries(work_image, center):
-    #     center_numpy = [center[0],center[1]]
-
     if center is not None:
         return [center[0], center[1]], radius
     else:
         return None, None
-
-
-# to up frame-rate, after first recognition of ball try to find it
-# near the first occurence in the next frame
-# def fast_ball_detection(color_image,center):
-#     diff = 80
-#     bounding_box = None
-
-
-#     # This code is not used, as it made detection slower not faster :)
-#     # if center is not None:
-
-#     #     # Crop image but make sure cropping is done within image boundaries
-#     #     x_min = center[0] - diff if center[0] - diff > 0 else 0
-#     #     x_max = center[0] + diff if center[0] + diff < color_image.shape[0] else color_image.shape[0]
-#     #     y_min = center[1] - diff if center[1] - diff > 0 else 0
-#     #     y_max = center[1] + diff if center[1] + diff < color_image.shape[1] else color_image.shape[1]
-#     #     crop_image = color_image[y_min:y_max,x_min:x_max]
-
-
-#     #     bounding_box = (x_min, x_max, y_min, y_max)
-#     #     #cv2.imshow("Crop image", crop_image)
-
-
-#     return detect_ball(color_image, bounding_box)

@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/airish/Schreibtisch/NTU/Robotics/robo_pong/src/AUTO_calibration_robot.cpp
+unistd.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+stdlib.h
+-
+stdio.h
+-
+iostream
+-
+string
+-
+opencv.hpp
+/home/airish/Schreibtisch/NTU/Robotics/robo_pong/src/opencv.hpp
+
