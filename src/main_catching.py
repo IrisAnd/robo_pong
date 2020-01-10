@@ -51,20 +51,9 @@ def visualization(xs,ys,zs,xs_pred, ys_pred, zs_pred,cp):
 
 def main():
 
-    # create new csv file to save results
-    # try:
-    #     os.remove('data.csv')
-    # except:
-    #     print("No data file found, creating new one")
-    # file = open('data.csv', mode = 'a')
-    # writer = csv.writer(file,delimiter=',', quotechar=' ')
-    # writer.writerow(["time", "point"])
-
+    
     # Open TCP connection to robot
     #client = TCPClient()
-    
-    # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-    out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,480))
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -165,14 +154,10 @@ def main():
             toc = time.time()
             time_vec.append(toc-tic)
 
-            #write the time and detected point to csv output file
-            #writer.writerow([toc, center_world]) # TODO this center should be in robot coordinates
             
 
         else:
             none_count = none_count+1
-        #toc_frame = time.time()
-        #print("Detection_time: ",toc_frame-tic_frame)
 
 
         #if no points were detected for some time (10 frames), reset the point vector and polynomial calculation
@@ -216,7 +201,6 @@ def main():
                 # compute the thickness of the line and
                 # draw the connecting lines
                 thickness = int(np.sqrt(buffer_len / float(i + 1)) * 2.5)
-                #cv2.drawMarker(color_image, tuple(camera_pts[i - 1][:2]), tuple(camera_pts[i][:2]), (0, 0, 255), cv2.MARKER_CROSS,5)
                 cv2.drawMarker(color_image, (camera_pts[i][0],camera_pts[i][1]), (0, 0, 255), cv2.MARKER_CROSS,10)
         
             break
