@@ -53,7 +53,7 @@ def main():
 
     
     # Open TCP connection to robot
-    #client = TCPClient()
+    client = TCPClient()
 
     # Startup realsense pipeline
     pipeline = rs.pipeline()
@@ -177,7 +177,7 @@ def main():
 
             #Send catching point to robot
             if catch_point is not None:
-                #client.send_message(np.round(catch_point,2))
+                client.send_message(np.round(catch_point,2))
                 print("Processing time:",(time.time()-toce))
                 print("Sent point: ",np.round(catch_point,2))
                 catch_point_camera = bte.transform_to_camera(catch_point)
@@ -227,7 +227,7 @@ def main():
     # close all windows
     cv2.destroyAllWindows()
    
-   # client.close()
+    client.close()
 
     
 
