@@ -1,14 +1,5 @@
 ﻿# RoboPong 
-Final Project for Robotics Class 
-
-### General To Do: 
-* camera calibration 
-* connect image processing laptop to robot controlling PC: 
-	* [TESTING] proof of concept: send coordinates from laptop to PC and let robot move to those coordinates (see Run Remote ArmControl below)
-	* [DEBUGGING]
-* ball trajectory prediction: 
-	* validate calculated trajectory by visualization 
-* include air friction 
+This is the code base for a final project for the robotics class at NTU, Taiwan. The objective is to detect a thrown table tennis ball via image processing and predict it's future trajectory. A robot arm is then controlled to move to a calculated catching point and catch the ball before it hits the ground.   
 
 ### How to
 
@@ -23,21 +14,30 @@ Final Project for Robotics Class
 Now, the robot should move to the coordinates specified in TCPCleint.py.
 (backup in github/src with name: TCP_remote_arm_control.cpp)
 
+### General To Do: 
+* camera calibration 
+* connect image processing laptop to robot controlling PC: 
+	* [TESTING] proof of concept: send coordinates from laptop to PC and let robot move to those coordinates (see Run Remote ArmControl below)
+	* [DEBUGGING]
+* ball trajectory prediction: 
+	* validate calculated trajectory by visualization 
+* include air friction 
+
 ## Protocol 
 
-### 12/24 - Iris, Gregor
+### 12/24
 * Camera Calibration:
 	- Depth is a BIG issue!
 	- Calibration is not very accurate, even if using 9 points. 
 	- Ideas: maybe use more (or better) points, ask TAs and Internet how depth quality can be improved. 
-* Issues: Could not tesk trajectory planning, as TCP connection did not work
+* Issues: Could not test trajectory planning, as TCP connection did not work
 
-#### 12/21/2019 – Gregor, Jakob
+#### 12/21/2019
 * TCP: 
 	* [SOLVED] issue: now, strings, int arrays, etc can be read on server
 	* [PREPARED] POC: integrated TCP into ArmControl 
 
-#### 12/20/2019 - Iris, Gregor, Clarissa
+#### 12/20/2019
 * ProofOfConcept in 2D läuft
 * Vorbereitung Kalibierung: Code in python für x,y, depth Werte, JupyterLab Solver
 * Frame Rate optimierung
@@ -48,16 +48,16 @@ Now, the robot should move to the coordinates specified in TCPCleint.py.
 * Vorbereitung: Fangpunkt --> Robot Arbeitsraum definieren (Kugel), Schnittpunkt mit Trajektorie
 
 
-#### 12/19/2019 – Iris, Gregor, Jakob 
-* trajectory: ball detected, position output by webcam (w/o depth) and trajectory calculated with translated Israeli code (presumably, to be tested) 
+#### 12/19/2019 
+* trajectory: ball detected, position output by webcam (w/o depth) and trajectory calculated with translated third party code code (presumably, to be tested) 
 * TCP connection between our laptop (pyhton) and Robot PC (C++): message sent and echoed 
 	* issue: on server, only length of transferred data could be read, not string itself (proper conversion must be found) 
 	* TCPClient.py: ITRI PC IP address and port updated 
 	* TCPServer.cpp: Windows Winsock TCP/IP Server example code (most recent version is on ITRI PC only) 
 
-#### 12/18/2019 – Iris, Clarissa, Jakob
-* RealSense: runs on Clarissa’s (Linux) and Jakob’s (Windows) laptop 
+#### 12/18/2019 
+* RealSense: runs on Linux and Windows laptop 
 * ball detection: got pixel and depth information from RealSense 
-* trajectory: Israeli matlab code was transleted to python (not tested yet) 
-* TCP Server Client: sent String message from Clarissa’s laptop (client) to Jakob’s laptop (server) and back 
+* trajectory: matlab code was translated to python (not tested yet) 
+* TCP Server Client: sent String message from client to server and back 
 * ask TA for folding ruler
